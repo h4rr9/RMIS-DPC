@@ -428,9 +428,15 @@ def neq_load_customized(model, pretrained_dict):
 
 
 if __name__ == '__main__':
-    mymodel = resnet18_2d3d_full()
-    mydata = torch.FloatTensor(4, 3, 16, 128, 128)
-    nn.init.normal_(mydata)
-    import ipdb
-    ipdb.set_trace()
-    mymodel(mydata)
+    m = resnet18_2d3d_full()
+    x = torch.FloatTensor(4, 3, 16, 128, 128)
+
+    if torch.cuda.is_available():
+        m = m.cuda()
+        x = x.cuda()
+
+    nn.init.normal_(x)
+    __import__('ipdb').set_trace()
+    y = m(x)
+
+    print(y.shape)
