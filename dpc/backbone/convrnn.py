@@ -133,7 +133,13 @@ class ConvGRU(nn.Module):
 
 
 if __name__ == "__main__":
-    crnn = ConvGRU(input_size=10, hidden_size=20, kernel_size=3, num_layers=2)
-    data = torch.randn(4, 5, 10, 6, 6)  # [B, SL, C, H, W]
-    output, hn = crnn(data)
+    m = ConvGRU(input_size=10, hidden_size=20, kernel_size=3, num_layers=2)
+    x = torch.randn(4, 5, 10, 6, 6)  # [B, SL, C, H, W]
+
+    if torch.cuda.is_available():
+        m = m.cuda()
+        x = x.cuda()
+
     __import__('ipdb').set_trace()
+    o, h = m(x)
+    print(o.shape, h.shape)
