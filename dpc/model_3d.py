@@ -2,13 +2,10 @@
 
 from backbone import select_resnet, ConvGRU
 
-import sys
 import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
-sys.path.append('../backbone')
 
 
 class DPC_RNN(nn.Module):
