@@ -7,3 +7,4 @@ from .augmentation import RandomCrop
 from .augmentation import RandomHorizontalFlip
 from .augmentation import RandomCropWithProb
 from .augmentation import RandomGray
+from .augmentation import ToTensor
