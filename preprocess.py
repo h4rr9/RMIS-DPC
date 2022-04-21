@@ -42,8 +42,9 @@ if __name__ == "__main__":
 
     for paths in videos.values():
         split_idx = int(len(paths) * args.train_val_split)
-        train_paths_split = paths[:split_idx]
-        val_paths_split = paths[split_idx:]
+        sorted_paths = sorted(paths)
+        train_paths_split = sorted_paths[:split_idx]
+        val_paths_split = sorted_paths[split_idx:]
 
         train_paths.extend(train_paths_split)
         val_paths.extend(val_paths_split)
