@@ -18,6 +18,7 @@ def pil_loader(path):
 
 
 class RMIS(data.Dataset):
+
     def __init__(self,
                  data_path,
                  mode='train',
@@ -150,7 +151,11 @@ class RMIS(data.Dataset):
 
 
 if __name__ == "__main__":
-    d = RMIS('/home/h4rr9/work/python/rmis/test', video_transforms=ToTensor())
+    d = RMIS('/home/h4rr9/work/python/rmis/test',
+             video_transforms=ToTensor(),
+             downsample=3,
+             seq_len=3,
+             num_seq=5)
     __import__('ipdb').set_trace()
     frames, last_frame, mask = d[0]
     print(frames.shape)
