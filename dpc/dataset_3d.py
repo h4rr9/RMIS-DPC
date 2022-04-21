@@ -83,7 +83,7 @@ class RMIS(data.Dataset):
             # sample frames
             if self.return_last_frame:
                 # TODO: in case of last frame, sample from end of video
-                # not randomly
+                # do not sample randomly
                 raise NotImplementedError()
             else:
                 sampled_frame_idxs = self.idx_sampler()
