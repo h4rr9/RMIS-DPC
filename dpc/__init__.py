@@ -8,7 +8,6 @@ from .utils import AverageMeter
 from .utils import save_checkpoint
 from .utils import denorm
 from .utils import calc_topk_accuracy
-from .utils import neq
 
 from .utils import RandomCrop
 from .utils import RandomHorizontalFlip
