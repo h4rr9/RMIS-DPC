@@ -78,6 +78,8 @@ class RMIS(data.Dataset):
 
         vpath = Path(self.video_paths[index])
 
+        data = []
+
         if self.return_video:
 
             # sample frames
@@ -121,6 +123,8 @@ class RMIS(data.Dataset):
             sampled_video = sampled_video.view(self.num_seq, self.seq_len, C,
                                                H, W).transpose(1, 2)
 
+            data.append(sampled_video)
+
         if self.return_last_frame:
             # png files
             last_frame_png = vpath / 'raw.png'
@@ -144,7 +148,9 @@ class RMIS(data.Dataset):
             if self.last_frame_transforms:
                 last_frame, mask = self.last_frame_transforms(last_frame, mask)
 
-        return sampled_video, last_frame, mask
+            data.extend([last_frame, mask])
+
+        return data
 
     def __len__(self):
         len(self.video_paths)
