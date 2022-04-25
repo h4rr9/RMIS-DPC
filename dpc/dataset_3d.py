@@ -150,10 +150,13 @@ class RMIS(data.Dataset):
 
             data.extend([last_frame, mask])
 
+        if len(data) == 1:
+            [data] = data
+
         return data
 
     def __len__(self):
-        len(self.video_paths)
+        return len(self.video_paths)
 
 
 if __name__ == "__main__":
@@ -162,6 +165,7 @@ if __name__ == "__main__":
              downsample=3,
              seq_len=3,
              num_seq=5)
+    print(len(d))
     __import__('ipdb').set_trace()
-    frames, last_frame, mask = d[0]
+    frames = d[0]
     print(frames.shape)
