@@ -87,7 +87,7 @@ def main():
     np.random.seed(0)
 
     args = parser.parse_args()
-    cuda = torch.derive('cuda')
+    cuda = torch.device('cuda')
 
     if args.model == 'dpc-rnn':
         model = DPC_RNN(sample_size=args.img_dim,
