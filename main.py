@@ -33,7 +33,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--net', default='resnet18', type=str)
 parser.add_argument('--model', default='dpc-rnn', type=str)
 parser.add_argument('--dataset', default='rmis', type=str)
-parser.add_argument('--dataset_path', required=True, type=str)
+parser.add_argument('--data_path', required=True, type=str)
 parser.add_argument('--seq_len',
                     default=5,
                     type=int,
