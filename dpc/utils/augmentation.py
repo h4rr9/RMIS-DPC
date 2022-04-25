@@ -12,6 +12,7 @@ import torchvision.transforms.functional as F
 
 
 class Padding:
+
     def __init__(self, pad):
         self.pad = pad
 
@@ -20,6 +21,7 @@ class Padding:
 
 
 class Scale:
+
     def __init__(self, size, interpolation=Image.NEAREST):
         assert isinstance(size, int) or (isinstance(size, collections.Iterable)
                                          and len(size) == 2)
@@ -46,6 +48,7 @@ class Scale:
 
 
 class CenterCrop:
+
     def __init__(self, size, consistent=True):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
@@ -62,6 +65,7 @@ class CenterCrop:
 
 
 class RandomCropWithProb:
+
     def __init__(self, size, p=0.8, consistent=True):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
@@ -101,6 +105,7 @@ class RandomCropWithProb:
 
 
 class RandomCrop:
+
     def __init__(self, size, consistent=True):
         if isinstance(size, numbers.Number):
             self.size = (int(size), int(size))
@@ -151,6 +156,7 @@ class RandomCrop:
 
 
 class RandomSizedCrop:
+
     def __init__(self,
                  size,
                  interpolation=Image.BILINEAR,
@@ -218,6 +224,7 @@ class RandomSizedCrop:
 
 
 class RandomHorizontalFlip:
+
     def __init__(self, consistent=True, command=None):
         self.consistent = consistent
         if command == 'left':
@@ -246,6 +253,7 @@ class RandomHorizontalFlip:
 
 class RandomGray:
     '''Actually it is a channel splitting, not strictly grayscale images'''
+
     def __init__(self, consistent=True, p=0.5):
         self.consistent = consistent
         self.p = p  # probability to apply grayscale
@@ -290,6 +298,7 @@ class ColorJitter(object):
             hue_factor is chosen uniformly from [-hue, hue] or the given [min, max].
             Should have 0<= hue <= 0.5 or -0.5 <= min <= max <= 0.5.
     """
+
     def __init__(self,
                  brightness=0,
                  contrast=0,
@@ -402,6 +411,7 @@ class ColorJitter(object):
 
 
 class RandomRotation:
+
     def __init__(self, consistent=True, degree=15, p=1.0):
         self.consistent = consistent
         self.degree = degree
@@ -423,12 +433,14 @@ class RandomRotation:
 
 
 class ToTensor:
+
     def __call__(self, imgmap):
         totensor = transforms.ToTensor()
         return [totensor(i) for i in imgmap]
 
 
 class Normalize:
+
     def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
         self.mean = mean
         self.std = std
