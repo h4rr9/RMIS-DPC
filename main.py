@@ -14,7 +14,7 @@ import time
 import argparse
 import numpy as np
 
-from tensorboradX import SummaryWriter
+from tensorboardX import SummaryWriter
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
