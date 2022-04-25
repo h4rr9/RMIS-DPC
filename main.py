@@ -178,9 +178,9 @@ def main():
     for epoch in range(args.start_epoch, args.epochs):
         train_loss, train_acc, train_accuracy_list = train(
             train_loader, model, de_noramalize, criterion, optimizer, epoch,
-            args)
+            args, writer_train, cuda)
         val_loss, val_acc, val_accuracy_list = validate(
-            val_loader, model, criterion, optimizer, epoch, args)
+            val_loader, model, criterion, epoch, args, cuda)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
