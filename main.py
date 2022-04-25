@@ -324,8 +324,8 @@ def validate(data_loader, model, criterion, epoch, args, device):
 
             # [B, P, SQ, B, N, SQ]
             score_flattened = score_.view(B * NP * SQ, B2 * NS * SQ)
-            target_flattened = target_.view(B * NP * SQ,
-                                            B2 * NS * SQ).to(device)
+            target_flattened = target_.contiguous().view(
+                B * NP * SQ, B2 * NS * SQ).to(device)
             target_flattened = target_flattened.to(int).argmax(dim=1)
 
             loss = criterion(score_flattened, target_flattened)
