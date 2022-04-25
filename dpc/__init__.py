@@ -16,3 +16,4 @@ from .utils import RandomGray
 from .utils import ToTensor
 from .utils import Normalize
 from .utils import RandomSizedCrop
+from .utils import ColorJitter
