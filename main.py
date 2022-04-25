@@ -118,6 +118,7 @@ def main():
     args.old_lr = None
 
     best_acc = 0
+    global iteration
     iteration = 0
 
     if args.resume:
