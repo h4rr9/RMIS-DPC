@@ -14,3 +14,4 @@ from .utils import RandomHorizontalFlip
 from .utils import RandomCropWithProb
 from .utils import RandomGray
 from .utils import ToTensor
+from .utils import Normalize
