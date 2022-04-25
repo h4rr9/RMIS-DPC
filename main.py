@@ -259,7 +259,8 @@ def train(data_loader, model, de_normalize, criterion, optimizer, epoch, args,
         # score is a 6d tensor: [B, P, SQ, B2, N, SQ]
         # similarity matrix is computed inside each gpu, thus here B == num_gpu * B2
         score_flattened = score_.view(B * NP * SQ, B2 * NS * SQ)
-        target_flattened = target_.view(B * NP * SQ, B2 * NS * SQ).to(device)
+        target_flattened = target_.contiguous().view(B * NP * SQ,
+                                                     B2 * NS * SQ).to(device)
         target_flattened = target_flattened.to(int).argmax(dim=1)
 
         loss = criterion(score_flattened, target_flattened)
