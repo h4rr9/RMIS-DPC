@@ -94,7 +94,7 @@ def main():
                         num_seq=args.num_seq,
                         seq_len=args.seq_len,
                         network=args.net,
-                        pref_step=args.pred_step)
+                        pred_step=args.pred_step)
 
     else:
         raise ValueError('wrong model')
