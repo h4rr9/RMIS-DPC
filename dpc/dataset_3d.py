@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 import zipfile
 import torch
+import io
 
 from .utils import ToTensor
 
@@ -102,12 +103,14 @@ class RMIS(data.Dataset):
                 frame_buf = compressed_video.read(compressed_frame_png)
 
                 # convert into 1-d buffer array
-                np_buf = np.frombuffer(frame_buf, np.uint8)
+                # np_buf = np.frombuffer(frame_buf, np.uint8)
+                frame_enc = io.BytesIO(frame_buf)
 
                 # decode buffer into numpy-image
-                np_img = cv2.imdecode(np_buf, cv2.IMREAD_UNCHANGED)
+                # np_img = cv2.imdecode(np_buf, cv2.IMREAD_UNCHANGED)
+                img = Image.open(frame_enc)
 
-                sampled_video.append(np_img)
+                sampled_video.append(img)
 
             # apply video transforms
             if self.video_transforms:
