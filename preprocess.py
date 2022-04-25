@@ -10,6 +10,7 @@ parser.add_argument('--data_path', default='/mnt/disks/rmis/data', type=str)
 
 parser.add_argument('--output_file_prefix', default='data_split_', type=str)
 parser.add_argument('--train_val_split', default=0.8, type=float)
+parser.add_argument('--dataset_keep', default=0.1, type=float)
 
 if __name__ == "__main__":
 
@@ -27,9 +28,13 @@ if __name__ == "__main__":
         for p in patients:
             video_folder = data_path / s / p
             if os.path.isdir(video_folder):
-                videos[(s, p)] = [
+
+                videos_s_p = [
                     f.path for f in os.scandir(video_folder) if f.is_dir()
                 ]
+                videos[(
+                    s,
+                    p)] = videos_s_p[:int(len(videos_s_p) * args.dataset_keep)]
                 total_videos += len(videos[(s, p)])
 
     print(f"Total videos found ::: {total_videos}")
