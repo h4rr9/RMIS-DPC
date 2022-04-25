@@ -1,6 +1,6 @@
 # from https://github.com/TengdaHan/DPC/blob/master/dpc/model_3d.py
 
-from backbone import select_resnet, ConvGRU
+from .backbone import select_resnet, ConvGRU
 
 import math
 import torch

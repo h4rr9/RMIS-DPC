@@ -6,6 +6,8 @@ from dpc import RMIS, DPC_RNN, AverageMeter
 from dpc import ToTensor, Normalize
 from dpc import RandomSizedCrop, RandomHorizontalFlip, RandomGray, ColorJitter
 
+import torchvision.transforms as transforms
+
 import os
 import re
 import time
@@ -166,6 +168,7 @@ def main():
     val_loader = get_data(transform, 'val', args)
 
     de_noramalize = denorm()
+    # FIX: fix denorm global
     img_path, model_path = set_path(args)
 
     writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))

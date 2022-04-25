@@ -8,7 +8,7 @@ import cv2
 import zipfile
 import torch
 
-from utils import ToTensor
+from .utils import ToTensor
 
 
 def pil_loader(path):
