@@ -10,6 +10,7 @@ import torch.nn.functional as F
 
 class DPC_RNN(nn.Module):
     '''DPC with RNN'''
+
     def __init__(self,
                  sample_size,
                  num_seq=8,
