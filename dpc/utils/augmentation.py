@@ -171,7 +171,7 @@ class RandomSizedCrop:
         img1 = imgmap[0]
         if random.random() < self.threshold:  # do RandomSizedCrop
             for attempt in range(10):
-                area = img1.size[0] * img1.size[1]
+                area = img1.shape[0] * img1.shape[1]
                 target_area = random.uniform(0.5, 1) * area
                 aspect_ratio = random.uniform(3. / 4, 4. / 3)
 
@@ -181,9 +181,9 @@ class RandomSizedCrop:
                 if self.consistent:
                     if random.random() < 0.5:
                         w, h = h, w
-                    if w <= img1.size[0] and h <= img1.size[1]:
-                        x1 = random.randint(0, img1.size[0] - w)
-                        y1 = random.randint(0, img1.size[1] - h)
+                    if w <= img1.shape[0] and h <= img1.shape[1]:
+                        x1 = random.randint(0, img1.shape[0] - w)
+                        y1 = random.randint(0, img1.shape[1] - h)
 
                         imgmap = [
                             i.crop((x1, y1, x1 + w, y1 + h)) for i in imgmap
@@ -200,11 +200,11 @@ class RandomSizedCrop:
                     for i in imgmap:
                         if random.random() < 0.5:
                             w, h = h, w
-                        if w <= img1.size[0] and h <= img1.size[1]:
-                            x1 = random.randint(0, img1.size[0] - w)
-                            y1 = random.randint(0, img1.size[1] - h)
+                        if w <= img1.shape[0] and h <= img1.shape[1]:
+                            x1 = random.randint(0, img1.shape[0] - w)
+                            y1 = random.randint(0, img1.shape[1] - h)
                             result.append(i.crop((x1, y1, x1 + w, y1 + h)))
-                            assert (result[-1].size == (w, h))
+                            assert (result[-1].shape == (w, h))
                         else:
                             result.append(i)
 
