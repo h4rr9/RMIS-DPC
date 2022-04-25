@@ -102,6 +102,8 @@ def main():
     model = nn.DataParallel(model)
     model = model.to(cuda)
 
+    criterion = nn.CrossEntropyLoss()
+
     if args.train_what == 'last':
         for name, param in model.module.resnet.named_parameters():
             param.requires_grad = False
@@ -164,11 +166,10 @@ def main():
             Normalize()
         ])
 
-    train_loader = get_data(transform, 'train', args)
-    val_loader = get_data(transform, 'val', args)
+    train_loader = get_data(transform, args, 'train')
+    val_loader = get_data(transform, args, 'val')
 
     de_noramalize = denorm()
-    # FIX: fix denorm global
     img_path, model_path = set_path(args)
 
     writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))
@@ -176,9 +177,10 @@ def main():
 
     for epoch in range(args.start_epoch, args.epochs):
         train_loss, train_acc, train_accuracy_list = train(
-            train_loader, model, optimizer, epoch)
+            train_loader, model, de_noramalize, criterion, optimizer, epoch,
+            args)
         val_loss, val_acc, val_accuracy_list = validate(
-            val_loader, model, optimizer, epoch)
+            val_loader, model, criterion, optimizer, epoch, args)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
@@ -223,8 +225,8 @@ def process_output(mask):
     return target, (B, B2, NS, NP, SQ)
 
 
-def train(data_loader, model, criterion, optimizer, epoch, args, writer,
-          device):
+def train(data_loader, model, de_normalize, criterion, optimizer, epoch, args,
+          writer, device):
     losses = AverageMeter()
     accuracy = AverageMeter()
     accuracy_list = [AverageMeter(), AverageMeter(), AverageMeter()]
@@ -238,7 +240,8 @@ def train(data_loader, model, criterion, optimizer, epoch, args, writer,
         [score_, mask_] = model(input_seq)
         # visualize
         if (iteration == 0) or (iteration == args.print_freq):
-            if B > 2: input_seq = input_seq[0:2, :]
+            if B > 2:
+                input_seq = input_seq[0:2, :]
             writer.add_image(
                 'input_seq',
                 de_normalize(
