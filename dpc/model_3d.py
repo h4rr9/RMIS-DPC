@@ -153,8 +153,8 @@ class DPC_RNN(nn.Module):
 
 if __name__ == "__main__":
 
-    mymodel = DPC_RNN(sample_size=112)
-    x = torch.FloatTensor(4, 8, 3, 5, 112, 112)
+    mymodel = DPC_RNN(sample_size=128)
+    x = torch.FloatTensor(4, 8, 3, 5, 128, 128)
 
     if torch.cuda.is_available():
         mymodel = mymodel.cuda()
