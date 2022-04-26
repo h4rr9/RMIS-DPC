@@ -123,7 +123,7 @@ def main():
 
     if args.resume:
         if os.path.isfile(args.resume):
-            args.old_lr = float(re.search('_lr(.+?)_'.args.resume).group(1))
+            args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
             print("=> loading resumed checkpoint '{}'".format(args.resume))
             checkpoint = torch.load(args.resume,
                                     map_location=torch.device('cpu'))
