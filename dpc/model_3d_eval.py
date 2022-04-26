@@ -1,6 +1,6 @@
 import math
 
-from backbone import select_resnet, ConvGRU
+from .backbone import select_resnet, ConvGRU
 
 import torch
 import torch.nn as nn
