@@ -36,9 +36,11 @@ def test(test_dataloader, model, loss_fn, cuda):
         print("Test IoU score: " + test_IOU)
 
         np.savetxt("Test_Metrics.csv", [test_IOU, test_dice, test_loss], delimiter =", ", fmt ='%1.9f')
+        
+        return test_loss, test_dice, test_IOU
 
         
-def train(train_dataloader, model, loss_fn, optimizer, train_writer, cuda): 
+def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, cuda): 
     """
     
     """
@@ -99,6 +101,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, cuda):
     np.savetxt("Train_Loss.csv", train_loss, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Train_DICE.csv", train_dice, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Train_IoU.csv", train_IOU, delimiter =", ", fmt ='%1.9f')
+    
+    return train_loss, train_dice, train_IOU, iteration
 
 
 def val(val_dataloader, model, loss_fn, val_writer, cuda):
@@ -151,3 +155,5 @@ def val(val_dataloader, model, loss_fn, val_writer, cuda):
     np.savetxt("Val_Loss.csv", val_loss, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Val_DICE.csv", val_dice, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Val_IoU.csv", val_IOU, delimiter =", ", fmt ='%1.9f')
+    
+    return val_loss, val_dice, val_IOU
