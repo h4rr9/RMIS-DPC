@@ -151,5 +151,3 @@ def val(val_dataloader, model, loss_fn, val_writer, cuda):
     np.savetxt("Val_Loss.csv", val_loss, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Val_DICE.csv", val_dice, delimiter =", ", fmt ='%1.9f')
     np.savetxt("Val_IoU.csv", val_IOU, delimiter =", ", fmt ='%1.9f')
-
-        
