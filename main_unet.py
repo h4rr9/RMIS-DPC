@@ -35,7 +35,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--net', default='vgg11', type=str)
 parser.add_argument('--model', default='unet11', type=str)
 parser.add_argument('--dataset', default='rmis', type=str)
-parser.add_argument('--data_path', required=True, type=str)
+parser.add_argument('--data_path', default='/mnt/disks/rmis_train/', type=str)
 parser.add_argument('--seq_len',
                     default=0,
                     type=int,
@@ -145,7 +145,7 @@ def main():
             T.Normalize()
         ])
 
-    args.data_path = '/mnt/disks/rmis_train'
+    # args.data_path = '/mnt/disks/rmis_train/'
     
     # get training and val data
     train_loader = get_data(transform, args, 'train')
