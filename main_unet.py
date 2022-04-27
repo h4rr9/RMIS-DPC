@@ -145,6 +145,7 @@ def main():
             T.Normalize()
         ])
 
+    
     # get training and val data
     train_loader = get_data(transform, args, 'train')
     val_loader = get_data(transform, args, 'val')
@@ -225,3 +226,6 @@ def get_data(
 
     print('"%s" dataset size: %d' % (mode, len(dataset)))
     return data_loader
+
+if __name__ == '__main__':
+    main()
