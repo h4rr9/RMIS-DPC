@@ -134,16 +134,16 @@ def main():
 
     if args.dataset == 'rmis':
         transform = T.Compose([
-            T.RandomSizedCrop(size=args.img_dim, consistent=True, p=1.0),
-            RandomHorizontalFlip(consistent=True),
-            RandomGray(consistent=False, p=0.5),
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
+            T. RandomGray(consistent=False, p=0.5),
             T.ColorJitter(brightness=0.5,
                         contrast=0.5,
                         saturation=0.5,
                         hue=0.25,
                         p=1.0),
             T.ToTensor(),
-            Normalize()
+            T.Normalize()
         ])
 
     # get training and val data

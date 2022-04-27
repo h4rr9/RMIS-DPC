@@ -1,13 +1,17 @@
 # based on https://github.com/pytorch/vision/blob/main/references/segmentation/transforms.py
+import math
 import numbers
 import random
 import numpy as np
 import torch
+from PIL import Image
 # from torch.nn import functional as F
 
 import torchvision
 from torchvision import transforms
 import torchvision.transforms.functional as F
+
+from dpc.utils.augmentation import CenterCrop, Scale
 
 class ToTensor:
 
@@ -24,30 +28,6 @@ class Resize:
 
     def __call__(self, img, target):
         return F.resize(img, (128,128)), F.resize(target,(128,128))
-
-# class RandomBrightness:
-#     def __init__(self, prob=0.5):
-#         self.prob = prob
-
-#     def __call__(self, image, target):
-#         if torch.rand(1) < self.prob:
-#             if torch.randn(1) < self.prob:
-#                 image = F.adjust_brightness(image, 0.8)
-#             else:
-#                 image = F.adjust_brightness(image, 1.2)
-#         return image, target
-
-# class RandomSharpness:
-#     def __init__(self, prob=0.5):
-#         self.prob = prob
-
-#     def __call__(self, image, target):
-#         if torch.rand(1) < self.prob:
-#             if torch.randn(1) < self.prob:
-#                 image = F.adjust_sharpness(image, 0.8)
-#             else:
-#                 image = F.adjust_sharpness(image, 1.2)
-#         return image, target
 
 class RandomVerticalFlip:
     def __init__(self, consistent=True, prob=0.5):
@@ -231,3 +211,40 @@ class ColorJitter(object):
         format_string += ', saturation={0}'.format(self.saturation)
         format_string += ', hue={0})'.format(self.hue)
         return format_string
+
+class RandomGray:
+    '''Actually it is a channel splitting, not strictly grayscale images'''
+
+    def __init__(self, consistent=True, p=0.5):
+        self.consistent = consistent
+        self.p = p  # probability to apply grayscale
+
+    def __call__(self, img, target):
+        if self.consistent:
+            if random.random() < self.p:
+                return self.grayscale(img), target
+            else:
+                return img, target
+        else:
+
+            if random.random() < self.p:
+                img = self.grayscale(img)
+
+            return img, target
+
+    def grayscale(self, img):
+        channel = np.random.choice(3)
+        np_img = np.array(img)[:, :, channel]
+        np_img = np.dstack([np_img, np_img, np_img])
+        img = Image.fromarray(np_img, 'RGB')
+        return img
+
+class Normalize:
+    
+    def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
+        self.mean = mean
+        self.std = std
+
+    def __call__(self, img, target):
+        normalize = transforms.Normalize(mean=self.mean, std=self.std)
+        return normalize(img), target
