@@ -3,7 +3,7 @@ from UNET import transform as T
 import UNET.train_unet as ut
 from UNET.loss import DICE_Loss
 from dpc.dataset_3d import RMIS
-from .main import set_path
+from main import set_path
 from dpc import save_checkpoint
 from dpc.utils import denorm
 from dpc.backbone.resnet_2d3d import neq_load_customized
