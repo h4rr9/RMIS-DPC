@@ -17,6 +17,7 @@ class ToTensor:
         pass
 
     def __call__(self, img, target):
+        print("totensor")
         return F.to_tensor(img), F.to_tensor(target)
 
 class Resize:
@@ -25,6 +26,7 @@ class Resize:
         pass
 
     def __call__(self, img, target):
+        print("resize")
         return F.resize(img, (128,128)), F.resize(target,(128,128))
 
 class RandomVerticalFlip:
@@ -33,7 +35,8 @@ class RandomVerticalFlip:
         self.degree = 180
 
     def __call__(self, image, target):
-        
+        print("Vflip")
+
         if torch.rand(1) < self.prob:
             image = F.rotate(image, self.degree)
             image = F.rotate(target, self.degree)
@@ -46,6 +49,7 @@ class RandomHorizontalFlip:
         self.degree = 90
 
     def __call__(self, image, target):
+        print("HF")
         if torch.rand(1) < self.prob:
             if torch.randn(1) < self.prob:
                 image = F.rotate(image, self.degree)
@@ -62,6 +66,7 @@ class Rotate:
         self.degree = 15
 
     def __call__(self, image, target):
+        print("RT")
         deg = np.random.randint(-self.degree, self.degree, 1)[0]
         if torch.rand(1) < self.prob:
             if torch.randn(1) < self.prob:
@@ -186,6 +191,7 @@ class ColorJitter(object):
         return transform
 
     def __call__(self, seg_img, target):
+        print("jit")
         if random.random() < self.threshold:  # do ColorJitter
             if self.consistent:
                 transform = self.get_params(self.brightness, self.contrast,
@@ -216,6 +222,7 @@ class RandomGray:
         self.p = p  # probability to apply grayscale
 
     def __call__(self, img, target):
+        print("RG")
         if self.consistent:
             if random.random() < self.p:
                 return self.grayscale(img), target
@@ -240,5 +247,7 @@ class Normalize:
         self.std = std
 
     def __call__(self, img, target):
+        print("NORM")
+        
         normalize = transforms.Normalize(mean=self.mean, std=self.std)
         return normalize(img), target

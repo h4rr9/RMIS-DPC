@@ -1,4 +1,4 @@
-from UNET import unet11
+from UNET.unet11 import UNet11
 from UNET import transform as T
 import UNET.train_unet as ut
 from UNET.loss import DICE_Loss
@@ -88,7 +88,7 @@ def main():
     args = parser.parse_args()
     cuda = torch.device('cuda')
     
-    model = unet11(args.num_classes)
+    model = UNet11(args.num_classes)
     model.to(cuda)
     
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
@@ -133,6 +133,7 @@ def main():
 
     if args.dataset == 'rmis':
         transform = T.Compose([
+            T.Resize(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
             T.RandomGray(consistent=False, p=0.5),
@@ -151,6 +152,9 @@ def main():
     train_loader = get_data(transform, args, 'train')
     val_loader = get_data(transform, args, 'val')
 
+    print("loader:", len(train_loader))
+
+
     # de_noramalize = denorm()
     img_path, model_path = set_path(args)
     
@@ -160,8 +164,8 @@ def main():
     # start training
     for epoch in range(args.start_epoch, args.epochs):
         train_loss, train_dice, train_iou, iteration = ut.train(
-            train_loader, model, criterion, optimizer, epoch,
-            args, writer_train, iteration, cuda)
+            train_loader, model, criterion, optimizer,
+            writer_train, iteration, cuda)
         
         val_loss, val_dice, val_iou = ut.validate(
             val_loader, model, criterion, epoch, writer_val, cuda)
@@ -210,6 +214,7 @@ def get_data(
             seq_len=args.seq_len,
             num_seq=args.num_seq,
             downsample=args.ds,
+            return_video = False,
             return_last_frame=True
         )
     else:

@@ -51,11 +51,9 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
 
     train_loss, train_IOU, train_dice = 0,0,0
     
-    print("epoch: ", i)
-
     # train the model
     model.train()
-    for i, data in enumerate(train_dataloader):
+    for data in enumerate(train_dataloader):
         # get inputs and labels
 
         inputs, labels = data
