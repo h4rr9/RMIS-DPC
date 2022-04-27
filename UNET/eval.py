@@ -1,5 +1,4 @@
 import torch
-from torch import nn
 from torch.nn import functional as F
 import numpy as np
 
@@ -84,7 +83,7 @@ def iou_score_image(prediction, target, n_classes = 2):
     return iou_classes.mean()
 
 
-def dice_dataset(model, dataloader ,num_classes = 2, use_gpu=False):
+def dice_dataset(model, dataset ,num_classes = 2, use_gpu=False):
     """
     Compute the mean dice score on a set of data.
     
@@ -97,21 +96,21 @@ def dice_dataset(model, dataloader ,num_classes = 2, use_gpu=False):
      
     Args:
         model (UNET class): Your trained model
-        dataloader (DataLoader): Dataset for evaluation
+        dataset (DataLoader): Dataset for evaluation
         num_classes (int): Number of classes
     
     Returns:
         m_dice (float): Mean dice score over the input dataset
     """
     ## Number of Batches and Cache over Dataset 
-    n_batches = len(dataloader)
+    n_batches = len(dataset)
     scores = np.zeros(n_batches)
     n_classes = num_classes
 
     ## Evaluate
     model.eval()
     idx = 0
-    for data in dataloader:
+    for data in dataset:
         ## Format Data
         img, target = data
         if use_gpu:
@@ -128,7 +127,7 @@ def dice_dataset(model, dataloader ,num_classes = 2, use_gpu=False):
     m_dice = scores.mean()
     return m_dice
 
-def iou_dataset(model, dataloader ,num_classes = 2, use_gpu=False):
+def iou_dataset(model, dataset ,num_classes = 2, use_gpu=False):
     """
     Compute the mean dice score on a set of data.
     
@@ -148,14 +147,14 @@ def iou_dataset(model, dataloader ,num_classes = 2, use_gpu=False):
         m_dice (float): Mean dice score over the input dataset
     """
     ## Number of Batches and Cache over Dataset 
-    n_batches = len(dataloader)
+    n_batches = len(dataset)
     scores = np.zeros(n_batches)
     n_classes = num_classes
 
     ## Evaluate
     model.eval()
     idx = 0
-    for data in dataloader:
+    for data in dataset:
         ## Format Data
         img, target = data
         if use_gpu:
