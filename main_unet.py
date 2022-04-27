@@ -1,9 +1,8 @@
 from UNET import unet11
-from UNET import transform
+from UNET import transform as T
 import UNET.train_unet as ut
 from UNET.loss import DICE_Loss
 from dpc.dataset_3d import RMIS
-# from .main import get_data
 from .main import set_path
 from dpc import save_checkpoint
 from dpc.utils import denorm
@@ -132,19 +131,19 @@ def main():
         else:
             print("=> no checkpoint found at '{}'".format(args.pretrain))
 
-    # if args.dataset == 'rmis':
-    #     transform = transforms.Compose([
-    #         RandomSizedCrop(size=args.img_dim, consistent=True, p=1.0),
-    #         RandomHorizontalFlip(consistent=True),
-    #         RandomGray(consistent=False, p=0.5),
-    #         ColorJitter(brightness=0.5,
-    #                     contrast=0.5,
-    #                     saturation=0.5,
-    #                     hue=0.25,
-    #                     p=1.0),
-    #         ToTensor(),
-    #         Normalize()
-    #     ])
+    if args.dataset == 'rmis':
+        transform = T.Compose([
+            T.RandomHorizontalFlip(),
+            T.RandomVerticalFlip(),
+            T.RandomGray(consistent=False, p=0.5),
+            T.ColorJitter(brightness=0.5,
+                        contrast=0.5,
+                        saturation=0.5,
+                        hue=0.25,
+                        p=1.0),
+            T.ToTensor(),
+            T.Normalize()
+        ])
 
     # get training and val data
     train_loader = get_data(transform, args, 'train')
@@ -158,9 +157,9 @@ def main():
     
     # start training
     for epoch in range(args.start_epoch, args.epochs):
-        train_loss, train_dice, train_iou = ut.train(
+        train_loss, train_dice, train_iou, iteration = ut.train(
             train_loader, model, criterion, optimizer, epoch,
-            args, writer_train, cuda)
+            args, writer_train, iteration, cuda)
         
         val_loss, val_dice, val_iou = ut.validate(
             val_loader, model, criterion, epoch, writer_val, cuda)
