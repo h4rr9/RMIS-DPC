@@ -10,7 +10,6 @@ Original file is located at
 from torch import nn
 import torch
 from torchvision import models
-import torchvision
 from torch.nn import functional as F
 
 def conv3x3(in_, out):
