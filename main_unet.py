@@ -136,7 +136,7 @@ def main():
         transform = T.Compose([
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T. RandomGray(consistent=False, p=0.5),
+            T.RandomGray(consistent=False, p=0.5),
             T.ColorJitter(brightness=0.5,
                         contrast=0.5,
                         saturation=0.5,
@@ -158,9 +158,9 @@ def main():
     
     # start training
     for epoch in range(args.start_epoch, args.epochs):
-        train_loss, train_dice, train_iou = ut.train(
+        train_loss, train_dice, train_iou, iteration = ut.train(
             train_loader, model, criterion, optimizer, epoch,
-            args, writer_train, cuda)
+            args, writer_train, iteration, cuda)
         
         val_loss, val_dice, val_iou = ut.validate(
             val_loader, model, criterion, epoch, writer_val, cuda)
