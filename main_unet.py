@@ -79,7 +79,7 @@ def main():
     args = parser.parse_args()
     cuda = torch.device('cuda')
     
-    model = unet11()
+    model = unet11(args.num_classes)
     model.to(cuda)
     
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
@@ -150,8 +150,9 @@ def main():
         train_loss, train_dice, train_iou = train(
             train_loader, model, criterion, optimizer, epoch,
             args, writer_train, cuda)
+        
         val_loss, val_dice, val_iou = validate(
-            val_loader, model, criterion, epoch, args, cuda)
+            val_loader, model, criterion, epoch, writer_val, cuda)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
@@ -159,17 +160,17 @@ def main():
         writer_train.add_scalar('global/iou', train_iou, epoch)
         writer_val.add_scalar('global/loss', val_loss, epoch)
         writer_val.add_scalar('global/dice', val_dice, epoch)
-        writer_train.add_scalar('global/iou', val_iou, epoch)
+        writer_val.add_scalar('global/iou', val_iou, epoch)
 
         # save check_point
         is_best = val_dice > best_dice
-        best_acc = max(val_dice, best_dice)
+        best_dice = max(val_dice, best_dice)
         save_checkpoint(
             {
                 'epoch': epoch + 1,
                 # 'net': args.net,
                 'state_dict': model.state_dict(),
-                'best_acc': best_acc,
+                'best_dice': best_dice,
                 'optimizer': optimizer.state_dict(),
                 'iteration': iteration
             },
