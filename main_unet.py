@@ -145,6 +145,7 @@ def main():
             T.Normalize()
         ])
 
+    args.data_path = '/mnt/disks/rmis_train'
     
     # get training and val data
     train_loader = get_data(transform, args, 'train')
