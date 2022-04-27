@@ -2,7 +2,8 @@ from UNET import unet11
 from UNET import transform
 import UNET.train_unet as ut
 from UNET.loss import DICE_Loss
-from .main import get_data
+from dpc.dataset_3d import RMIS
+# from .main import get_data
 from .main import set_path
 from dpc import save_checkpoint
 from dpc.utils import denorm
@@ -32,16 +33,24 @@ plt.switch_backend('agg')
 torch.backends.cudnn.benchmark = True
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--model', deafult='unet11', type=str)
+parser.add_argument('--net', default='vgg11', type=str)
+parser.add_argument('--model', default='unet11', type=str)
 parser.add_argument('--dataset', default='rmis', type=str)
 parser.add_argument('--data_path', required=True, type=str)
-
+parser.add_argument('--seq_len',
+                    default=0,
+                    type=int,
+                    help='number of frames in each video block')
+parser.add_argument('--num_seq',
+                    default=0,
+                    type=int,
+                    help='number of video blocks')
 parser.add_argument('--pred_step', default=3, type=int)
 parser.add_argument('--ds',
-                    default=3,
+                    default=0,
                     type=int,
                     help='frame downsampling rate')
-parser.add_argument('--batch_size', default=4, type=int)
+parser.add_argument('--batch_size', default=32, type=int)
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--wd', default=1e-5, type=float, help='weight decay')
 parser.add_argument('--resume',
@@ -99,11 +108,11 @@ def main():
                                     map_location=torch.device('cpu'))
             args.start_epoch = checkpoint['epoch']
             iteration = checkpoint['iteration']
-            best_acc = checkpoint['best_acc']
+            best_dice = checkpoint['best_dice']
             model.load_state_dict(checkpoint['state_dict'])
             if not args.reset_lr:  # if didn't reset lr, load old optimizer
                 optimizer.load_state_dict(checkpoint['optimizer'])
-            else:
+            else: 
                 print('==== Change lr from %f to %f ====' %
                       (args.old_lr, args.lr))
             print("=> loaded resumed checkpoint '{}' (epoch {})".format(
@@ -141,7 +150,7 @@ def main():
     train_loader = get_data(transform, args, 'train')
     val_loader = get_data(transform, args, 'val')
 
-    de_noramalize = denorm()
+    # de_noramalize = denorm()
     img_path, model_path = set_path(args)
     
     writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))
@@ -170,7 +179,7 @@ def main():
         save_checkpoint(
             {
                 'epoch': epoch + 1,
-                # 'net': args.net,
+                'net': args.net,
                 'state_dict': model.state_dict(),
                 'best_dice': best_dice,
                 'optimizer': optimizer.state_dict(),
@@ -183,3 +192,37 @@ def main():
 
     print('Training from ep %d to ep %d finished' %
         (args.start_epoch, args.epochs))
+
+
+
+def get_data(
+    transform,
+    args,
+    mode='train',
+):
+    print('Loading data for "%s" ...' % mode)
+    if args.dataset == 'rmis':
+        dataset = RMIS(
+            mode=mode,
+            data_path=args.data_path,
+            last_frame_transforms=transform,
+            seq_len=args.seq_len,
+            num_seq=args.num_seq,
+            downsample=args.ds,
+            return_last_frame=True
+        )
+    else:
+        raise ValueError('dataset not supported')
+
+    sampler = data.RandomSampler(dataset)
+
+    data_loader = data.DataLoader(dataset,
+                                  batch_size=args.batch_size,
+                                  sampler=sampler,
+                                  shuffle=False,
+                                  num_workers=32,
+                                  pin_memory=True,
+                                  drop_last=True)
+
+    print('"%s" dataset size: %d' % (mode, len(dataset)))
+    return data_loader
