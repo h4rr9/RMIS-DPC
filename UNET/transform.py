@@ -11,8 +11,6 @@ import torchvision
 from torchvision import transforms
 import torchvision.transforms.functional as F
 
-from dpc.utils.augmentation import CenterCrop, Scale
-
 class ToTensor:
 
     def __init__(self):
@@ -30,12 +28,12 @@ class Resize:
         return F.resize(img, (128,128)), F.resize(target,(128,128))
 
 class RandomVerticalFlip:
-    def __init__(self, consistent=True, prob=0.5):
+    def __init__(self, prob=0.5):
         self.prob = prob
-        self.consistent = consistent
         self.degree = 180
 
     def __call__(self, image, target):
+        
         if torch.rand(1) < self.prob:
             image = F.rotate(image, self.degree)
             image = F.rotate(target, self.degree)
@@ -43,9 +41,8 @@ class RandomVerticalFlip:
         return image, target
 
 class RandomHorizontalFlip:
-    def __init__(self, consistent=True, prob=0.5):
+    def __init__(self, prob=0.5):
         self.prob = prob
-        self.consistent = consistent
         self.degree = 90
 
     def __call__(self, image, target):
@@ -60,9 +57,8 @@ class RandomHorizontalFlip:
         return image, target
 
 class Rotate:
-    def __init__(self, consistent=True, prob=0.5):
+    def __init__(self, prob=0.5):
         self.prob = prob
-        self.consistent = consistent
         self.degree = 15
 
     def __call__(self, image, target):
@@ -228,9 +224,7 @@ class RandomGray:
         else:
 
             if random.random() < self.p:
-                img = self.grayscale(img)
-
-            return img, target
+                return self.grayscale(img), target
 
     def grayscale(self, img):
         channel = np.random.choice(3)
