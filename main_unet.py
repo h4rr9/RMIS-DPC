@@ -1,6 +1,7 @@
 from UNET import unet11
 from UNET import transform
-from UNET import train_unet
+import UNET.train_unet as ut
+from UNET.loss import DICE_Loss
 from .main import get_data
 from .main import set_path
 from dpc import save_checkpoint
@@ -83,6 +84,7 @@ def main():
     model.to(cuda)
     
     optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
+    criterion = DICE_Loss()
     args.old_lr = None
     
     best_dice = 0
@@ -147,11 +149,11 @@ def main():
     
     # start training
     for epoch in range(args.start_epoch, args.epochs):
-        train_loss, train_dice, train_iou = train(
+        train_loss, train_dice, train_iou = ut.train(
             train_loader, model, criterion, optimizer, epoch,
             args, writer_train, cuda)
         
-        val_loss, val_dice, val_iou = validate(
+        val_loss, val_dice, val_iou = ut.validate(
             val_loader, model, criterion, epoch, writer_val, cuda)
 
         # save curve
