@@ -2,6 +2,7 @@ from UNET.eval import dice_score_image, iou_score_image
 from UNET.loss import DICE_Loss
 from torch import nn
 import torch
+import numpy as np
 from torch.nn import functional as F
 
 # test
@@ -34,6 +35,9 @@ def test(test_dataloader, model, loss_fn, cuda):
         print("Test DICE score: " + test_dice)
         print("Test IoU score: " + test_IOU)
 
+        np.savetxt("Test_Metrics.csv", [test_IOU, test_dice, test_loss], delimiter =", ", fmt ='%1.9f')
+
+        
 
 
 def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cuda): 
@@ -41,6 +45,9 @@ def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cud
     
     """
     train_batches = len(train_dataloader)
+    total_loss = []
+    total_dice = []
+    total_iou = []
 
     ##TODO: Implement a training loop
     for i in range(epochs):
@@ -80,9 +87,19 @@ def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cud
         print("Train DICE score: " + train_dice)
         print("Train IoU score: " + train_IOU)
 
-        #train_writer.add_scalar('local/loss', losses.val, iteration)
-        #train_writer.add_scalar('local/dice', accuracy.val, iteration)
-        #train_writer.add_scalar('local/iou', accuracy.val, iteration)
+        total_loss.append(train_loss)
+        total_dice.append(train_dice)
+        total_iou.append(train_IOU)
+
+        if i % 5 == 0:
+            train_writer.add_scalar('local/loss', train_loss, iteration)
+            train_writer.add_scalar('local/dice', train_dice, iteration)
+            train_writer.add_scalar('local/iou', train_IOU, iteration)
+            iteration += 1
+
+    np.savetxt("Train_Loss.csv", train_loss, delimiter =", ", fmt ='%1.9f')
+    np.savetxt("Train_DICE.csv", train_dice, delimiter =", ", fmt ='%1.9f')
+    np.savetxt("Train_IoU.csv", train_IOU, delimiter =", ", fmt ='%1.9f')
 
 
 def val(val_dataloader, model, loss_fn, epochs, val_writer, cuda):
@@ -90,6 +107,9 @@ def val(val_dataloader, model, loss_fn, epochs, val_writer, cuda):
     
     """
     val_batches = len(val_dataloader)
+    total_loss = []
+    total_dice = []
+    total_iou = []
 
     ##TODO: Implement a training loop
     for i in range(epochs):
@@ -128,3 +148,14 @@ def val(val_dataloader, model, loss_fn, epochs, val_writer, cuda):
         print("Validation Loss: " + val_loss)
         print("Validation DICE score: " + val_dice)
         print("Validation IoU score: " + val_IOU)
+
+        total_loss.append(val_loss)
+        total_dice.append(val_dice)
+        total_iou.append(val_IOU)
+
+    np.savetxt("Val_Loss.csv", val_loss, delimiter =", ", fmt ='%1.9f')
+    np.savetxt("Val_DICE.csv", val_dice, delimiter =", ", fmt ='%1.9f')
+    np.savetxt("Val_IoU.csv", val_IOU, delimiter =", ", fmt ='%1.9f')
+
+        
+
