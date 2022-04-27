@@ -1,5 +1,5 @@
 from UNET import unet11
-from UNET import transform
+from UNET import transform as T
 import UNET.train_unet as ut
 from UNET.loss import DICE_Loss
 from dpc.dataset_3d import RMIS
@@ -132,19 +132,19 @@ def main():
         else:
             print("=> no checkpoint found at '{}'".format(args.pretrain))
 
-    # if args.dataset == 'rmis':
-    #     transform = transforms.Compose([
-    #         RandomSizedCrop(size=args.img_dim, consistent=True, p=1.0),
-    #         RandomHorizontalFlip(consistent=True),
-    #         RandomGray(consistent=False, p=0.5),
-    #         ColorJitter(brightness=0.5,
-    #                     contrast=0.5,
-    #                     saturation=0.5,
-    #                     hue=0.25,
-    #                     p=1.0),
-    #         ToTensor(),
-    #         Normalize()
-    #     ])
+    if args.dataset == 'rmis':
+        transform = T.Compose([
+            T.RandomSizedCrop(size=args.img_dim, consistent=True, p=1.0),
+            RandomHorizontalFlip(consistent=True),
+            RandomGray(consistent=False, p=0.5),
+            T.ColorJitter(brightness=0.5,
+                        contrast=0.5,
+                        saturation=0.5,
+                        hue=0.25,
+                        p=1.0),
+            T.ToTensor(),
+            Normalize()
+        ])
 
     # get training and val data
     train_loader = get_data(transform, args, 'train')
