@@ -83,7 +83,7 @@ def iou_score_image(prediction, target, n_classes = 2):
     return iou_classes.mean()
 
 
-def dice_dataset(model, dataset ,num_classes = 2, use_gpu=False):
+def dice_score_dataset(model, dataset ,num_classes = 2, use_gpu=False):
     """
     Compute the mean dice score on a set of data.
     
@@ -127,7 +127,7 @@ def dice_dataset(model, dataset ,num_classes = 2, use_gpu=False):
     m_dice = scores.mean()
     return m_dice
 
-def iou_dataset(model, dataset ,num_classes = 2, use_gpu=False):
+def iou_score_dataset(model, dataset ,num_classes = 2, use_gpu=False):
     """
     Compute the mean dice score on a set of data.
     
