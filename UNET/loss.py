@@ -1,11 +1,33 @@
 import torch
 from torch import nn
 from torch.nn import functional as F
-import utils
 import numpy as np
 
+class DICE_Loss(nn.Module):
 
-class LossBinary:
+    """
+    Simple Implementation of DICE Loss
+    
+    """
+
+    def __init__(self):
+        super(DICE_Loss, self).__init__()
+        self.dice_dims = (1,2,3)
+    
+    def forward(self, pred, target):
+
+        # calculation of DICE loss
+        numerator = (pred * target).sum(dim=self.dice_dims)
+        denominator = (pred ** 2 + target ** 2).sum(dim=self.dice_dims)
+
+        # epsilon to avoid 0 div error in the denominator
+        dice_score =  2 * numerator / (denominator + 1e-15)
+
+        return (1 - dice_score).mean()
+
+
+
+class IoU_Loss:
     """
     Loss defined as \alpha BCE - (1 - \alpha) SoftJaccard
     
@@ -21,12 +43,14 @@ class LossBinary:
         loss = (1 - self.jaccard_weight) * self.nll_loss(outputs, targets)
 
         if self.jaccard_weight:
-            eps = 1e-15
+            #eps = 1e-15
             jaccard_target = (targets == 1).float()
             jaccard_output = F.sigmoid(outputs)
 
+            # DICE loss
             intersection = (jaccard_output * jaccard_target).sum()
             union = jaccard_output.sum() + jaccard_target.sum()
 
-            loss -= self.jaccard_weight * torch.log((intersection + eps) / (union - intersection + eps))
+            # jaccard loss
+            loss -= self.jaccard_weight * torch.log((intersection + 1e-15) / (union - intersection + 1e-15))
         return loss
