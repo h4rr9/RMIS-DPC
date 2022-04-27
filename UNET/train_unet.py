@@ -5,7 +5,7 @@ import torch
 from torch.nn import functional as F
 
 # test
-def test(test_dataloader, model, loss_fn, cuda, **kwargs):
+def test(test_dataloader, model, loss_fn, cuda):
     test_batches = len(test_dataloader)
     test_loss, test_IOU, test_dice = 0, 0, 0
 
@@ -36,7 +36,7 @@ def test(test_dataloader, model, loss_fn, cuda, **kwargs):
 
 
 
-def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cuda **kwargs):
+def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cuda): 
     """
     
     """
@@ -80,8 +80,12 @@ def train(train_dataloader, model, loss_fn, optimizer, epochs, train_writer, cud
         print("Train DICE score: " + train_dice)
         print("Train IoU score: " + train_IOU)
 
+        #train_writer.add_scalar('local/loss', losses.val, iteration)
+        #train_writer.add_scalar('local/dice', accuracy.val, iteration)
+        #train_writer.add_scalar('local/iou', accuracy.val, iteration)
 
-def val(val_dataloader, model, loss_fn, epochs, val_writer, cuda, **kwargs):
+
+def val(val_dataloader, model, loss_fn, epochs, val_writer, cuda):
     """
     
     """
