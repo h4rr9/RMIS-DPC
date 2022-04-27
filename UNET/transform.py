@@ -26,8 +26,8 @@ class Resize:
         pass
 
     def __call__(self, img, target):
-        print("resize")
-        print(type(img), type(target))
+        #print("resize")
+       # print(type(img), type(target))
         return F.resize(img, (128,128)), F.resize(target,(128,128))
 
 class RandomVerticalFlip:
@@ -38,25 +38,20 @@ class RandomVerticalFlip:
     def __call__(self, image, target):
         
         if torch.rand(1) < self.prob:
-            image = F.rotate(image, self.degree)
-            image = F.rotate(target, self.degree)
+            image = F.vflip(image)
+            target = F.vflip(target)
                 
         return image, target
 
 class RandomHorizontalFlip:
     def __init__(self, prob=0.5):
         self.prob = prob
-        self.degree = 90
 
     def __call__(self, image, target):
     
-        if torch.rand(1) < self.prob:
-            if torch.randn(1) < self.prob:
-                image = F.rotate(image, self.degree)
-                image = F.rotate(target, self.degree)
-            else:
-                image = F.rotate(image, -self.degree)
-                image = F.rotate(target, -self.degree)
+        if torch.randn(1) < self.prob: 
+            image = F.hflip(image)
+            target = F.hflip(target)
                 
         return image, target
 
@@ -71,10 +66,10 @@ class Rotate:
         if torch.rand(1) < self.prob:
             if torch.randn(1) < self.prob:
                 image = F.rotate(image, deg)
-                image = F.rotate(target, deg)
+                target = F.rotate(target, deg)
             else:
                 image = F.rotate(image, deg)
-                image = F.rotate(target, deg)
+                target = F.rotate(target, deg)
                 
         return image, target
 

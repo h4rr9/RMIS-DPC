@@ -143,7 +143,7 @@ class RMIS(data.Dataset):
             # chekc if mask exists
             if mask_png.exists():
                 # read last_frame
-                mask = cv2.imread(str(last_frame_png), cv2.IMREAD_UNCHANGED)
+                mask = cv2.imread(str(mask_png), cv2.IMREAD_UNCHANGED)
                 # convert to binary mask
                 mask[mask > 0] = 1.
             else:
@@ -153,7 +153,9 @@ class RMIS(data.Dataset):
             # apply last_frame_transforms
             if self.last_frame_transforms:
                # print("imgage:", type(last_frame))
+               # print("before:",mask.shape)
                 last_frame, mask = self.last_frame_transforms(last_frame, mask)
+               # print("after:",mask.shape)
 
             data.extend([last_frame, mask])
 

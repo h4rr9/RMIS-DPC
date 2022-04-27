@@ -1,4 +1,4 @@
-from UNET.eval import dice_score_dataset, iou_score_dataset
+from UNET.eval import dice_score_image, iou_score_image
 import torch
 import numpy as np
 
@@ -23,8 +23,8 @@ def test(test_dataloader, model, loss_fn, cuda):
             test_loss += loss.item()
 
             # evaluate the model over validation
-            test_IOU += iou_score_dataset(pred, labels)
-            test_dice += dice_score_dataset(pred, labels)
+            test_IOU += iou_score_image(pred, labels)
+            test_dice += dice_score_image(pred, labels)
         
         # per batch avg dice & iou
         test_IOU = test_IOU/test_batches
@@ -58,19 +58,23 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
 
         inputs, labels = data
         
-        print(inputs.shape)
-        print(type(inputs))
-        print('\n')
-        print(labels.shape)
-        print(type(labels))
+       # print(inputs.shape)
+       # print(type(inputs))
+       # print('\n')
+       # print(labels.shape)
+       # print(type(labels))
 
         inputs = inputs.to(cuda)
         labels = labels.to(cuda)
         
         # compute predictions and loss
-        pred = model(inputs)
+        pred = model(inputs).squeeze(1)
+
+        print("pred:", pred.shape)
+        print("target:", labels.shape)
+
         loss = loss_fn(pred, labels)
-        
+
         # epoch train loss
         train_loss += loss.item()
 
@@ -80,8 +84,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
         optimizer.step()
 
         # evaluate the model over training
-        train_IOU += iou_score_dataset(pred, labels)
-        train_dice += dice_score_dataset(pred, labels)
+        train_IOU += iou_score_image(pred, labels)
+        train_dice += dice_score_image(pred, labels)
         
         if i % 5 == 0:
             train_writer.add_scalar('local/loss', train_loss, iteration)
@@ -109,7 +113,7 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     return train_loss, train_dice, train_IOU, iteration
 
 
-def val(val_dataloader, model, loss_fn, val_writer, cuda):
+def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     """
     
     """
@@ -139,8 +143,8 @@ def val(val_dataloader, model, loss_fn, val_writer, cuda):
             val_loss += loss.item()
 
             # evaluate the model over validation
-            val_IOU += iou_score_dataset(pred, labels)
-            val_dice += dice_score_dataset(pred, labels)
+            val_IOU += iou_score_image(pred, labels)
+            val_dice += dice_score_image(pred, labels)
             
 
     # per batch avg dice & iou

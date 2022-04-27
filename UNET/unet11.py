@@ -41,7 +41,7 @@ class DecoderBlock(nn.Module):
         if is_deconv:
             self.block = nn.Sequential(
                 ConvRelu(in_channels, middle_channels),
-                nn.ConvTranspose2d(middle_channels, out_channels, kernel_size=5, stride=2,
+                nn.ConvTranspose2d(middle_channels, out_channels, kernel_size=4, stride=2,
                                    padding=1),
                 nn.ReLU(inplace=True)
             )
@@ -57,7 +57,7 @@ class DecoderBlock(nn.Module):
 
 
 class UNet11(nn.Module):
-    def __init__(self, num_classes=2, num_filters=32, pretrained=False):
+    def __init__(self, num_classes=1, num_filters=32, pretrained=False):
         """
         :param num_classes:
         :param num_filters:

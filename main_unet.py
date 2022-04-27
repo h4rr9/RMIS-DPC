@@ -49,7 +49,7 @@ parser.add_argument('--ds',
                     default=0,
                     type=int,
                     help='frame downsampling rate')
-parser.add_argument('--batch_size', default=1, type=int)
+parser.add_argument('--batch_size', default=4, type=int)
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--wd', default=1e-5, type=float, help='weight decay')
 parser.add_argument('--resume',
@@ -82,7 +82,7 @@ parser.add_argument('--prefix',
                     help='prefix of checkpoint filename')
 parser.add_argument('--train_what', default='all', type=str)
 parser.add_argument('--img_dim', default=128, type=int)
-parser.add_argument('--num_classes', default=2, type=int)
+parser.add_argument('--num_classes', default=1, type=int)
 
 def main():
     args = parser.parse_args()
@@ -170,7 +170,7 @@ def main():
             writer_train, iteration, cuda)
         
         val_loss, val_dice, val_iou = ut.validate(
-            val_loader, model, criterion, epoch, writer_val, cuda)
+            val_loader, model, criterion, writer_val, cuda)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
