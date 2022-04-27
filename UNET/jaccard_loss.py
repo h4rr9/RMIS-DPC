@@ -5,11 +5,12 @@ import utils
 import numpy as np
 
 
-class DiceLoss:
+class LossBinary:
     """
-    Loss defined as DICE Loss
-    NOT UPDATED WITH DICE LOSS IMPLEMENTATION
-
+    Loss defined as \alpha BCE - (1 - \alpha) SoftJaccard
+    
+    From Ternaus paper 
+    Cite properly at some point 
     """
 
     def __init__(self, jaccard_weight=0):
