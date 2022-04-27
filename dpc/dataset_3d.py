@@ -132,10 +132,13 @@ class RMIS(data.Dataset):
             # png files
             last_frame_png = vpath / 'raw.png'
             mask_png = vpath / 'instrument_instances.png'
+            
 
             last_frame = cv2.imread(str(last_frame_png), cv2.IMREAD_UNCHANGED)
 
             H, W, C = last_frame.shape
+            
+            mask = np.zeros(shape=(H, W), dtype=np.uint8)
 
             # chekc if mask exists
             if mask_png.exists():
@@ -145,10 +148,11 @@ class RMIS(data.Dataset):
                 mask[mask > 0] = 1.
             else:
                 # empty mask
-                last_frame = np.zeros(shape=(H, W), dtype=np.uint8)
-
+                mask = np.zeros(shape=(H, W), dtype=np.uint8)
+               # print("empty")
             # apply last_frame_transforms
             if self.last_frame_transforms:
+               # print("imgage:", type(last_frame))
                 last_frame, mask = self.last_frame_transforms(last_frame, mask)
 
             data.extend([last_frame, mask])

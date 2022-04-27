@@ -53,11 +53,17 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     
     # train the model
     model.train()
-    for data in enumerate(train_dataloader):
+    for data in train_dataloader:
         # get inputs and labels
 
         inputs, labels = data
         
+        print(inputs.shape)
+        print(type(inputs))
+        print('\n')
+        print(labels.shape)
+        print(type(labels))
+
         inputs = inputs.to(cuda)
         labels = labels.to(cuda)
         

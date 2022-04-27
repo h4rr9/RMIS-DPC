@@ -49,7 +49,7 @@ parser.add_argument('--ds',
                     default=0,
                     type=int,
                     help='frame downsampling rate')
-parser.add_argument('--batch_size', default=32, type=int)
+parser.add_argument('--batch_size', default=1, type=int)
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--wd', default=1e-5, type=float, help='weight decay')
 parser.add_argument('--resume',
@@ -133,16 +133,18 @@ def main():
 
     if args.dataset == 'rmis':
         transform = T.Compose([
-            T.Resize(),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
-            T.RandomGray(consistent=False, p=0.5),
-            T.ColorJitter(brightness=0.5,
-                        contrast=0.5,
-                        saturation=0.5,
-                        hue=0.25,
-                        p=1.0),
+           # T.Resize(),
             T.ToTensor(),
+            T.Resize(),
+           # T.RandomHorizontalFlip(),
+           # T.RandomVerticalFlip(),
+           # T.RandomGray(consistent=False, p=0.5),
+           # T.ColorJitter(brightness=0.5,
+           #             contrast=0.5,
+            #            saturation=0.5,
+             #           hue=0.25,
+              #          p=1.0),
+        
             T.Normalize()
         ])
 
