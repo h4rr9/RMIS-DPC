@@ -1,4 +1,4 @@
-from UNET.eval import dice_score_image, iou_score_image
+from UNET.eval import dice_score_dataset, iou_score_dataset
 from UNET.loss import DICE_Loss
 from torch import nn
 import torch
@@ -23,8 +23,8 @@ def test(test_dataloader, model, loss_fn, cuda):
             test_loss += loss.item()
 
             # evaluate the model over validation
-            test_IOU += iou_score_image(pred, labels)
-            test_dice += dice_score_image(pred, labels)
+            test_IOU += iou_score_dataset(pred, labels)
+            test_dice += dice_score_dataset(pred, labels)
         
         # per batch avg dice & iou
         test_IOU = test_IOU/test_batches
