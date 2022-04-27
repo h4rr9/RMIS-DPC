@@ -47,7 +47,7 @@ class IoU_Loss:
             jaccard_target = (targets == 1).float()
             jaccard_output = F.sigmoid(outputs)
 
-            # DICE loss
+            # I and U calculation
             intersection = (jaccard_output * jaccard_target).sum()
             union = jaccard_output.sum() + jaccard_target.sum()
 
