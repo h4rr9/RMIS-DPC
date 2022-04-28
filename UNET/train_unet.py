@@ -70,8 +70,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
         # compute predictions and loss
         pred = model(inputs).squeeze(1)
 
-        print("pred:", pred.shape)
-        print("target:", labels.shape)
+        # print("pred:", pred.shape)
+        # print("target:", labels.shape)
 
         loss = loss_fn(pred, labels)
 
@@ -90,7 +90,7 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
         if i % 5 == 0:
             train_writer.add_scalar('local/loss', train_loss, iteration)
             train_writer.add_scalar('local/dice', train_dice, iteration)
-            train_writer.add_scalar('local/iou', train_IOU, iteration)
+            train_writer.add_scalar('local/iou', train_IOU.item(), iteration)
             iteration += 1
 
     # per batch avg dice & iou
@@ -98,9 +98,9 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     train_dice = train_dice/train_batches
     train_loss = train_loss/train_batches
 
-    print("Train Loss: " + train_loss)
-    print("Train DICE score: " + train_dice)
-    print("Train IoU score: " + train_IOU)
+    print("Train Loss: ", train_loss)
+    print("Train DICE score: " , train_dice)
+    print("Train IoU score: ", train_IOU)
 
     total_loss.append(train_loss)
     total_dice.append(train_dice)

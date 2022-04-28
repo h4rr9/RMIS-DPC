@@ -25,12 +25,12 @@ def dice_score_image(prediction, target):
     # prediction shape is (1, 256, 320) argmax removes the dim=1, but batch size is still 1
 
     smooth = 1.
-    num = prediction.size(0)
-    m1 = prediction.view(num, -1).float()  # Flatten
-    m2 = target.view(num, -1).float()  # Flatten
-    intersection = (m1 * m2).sum().float()
+    target = target.squeeze(1)
 
-    return (2. * intersection + smooth) / (m1.sum() + m2.sum() + smooth)
+    intersection = (prediction == target).float().sum((1,2))
+    dice = (2. * intersection + smooth)/(prediction.float().sum((1,2)) + target.float().sum((1,2)) + smooth)
+
+    return dice.mean()
 
 
 def iou_score_image(prediction, target):
@@ -53,7 +53,7 @@ def iou_score_image(prediction, target):
     
     iou = (intersection + smooth) / (union + smooth)  # We smooth our devision to avoid 0/0
     
-    return iou
+    return iou.mean()
 
 def dice_score_dataset(model, dataset):
     """
