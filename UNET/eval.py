@@ -49,7 +49,7 @@ def iou_score_image(prediction, target):
     target = target.squeeze(1)  # BATCH x 1 x H x W => BATCH x H x W
     
     intersection = (prediction == target).float().sum((1, 2))  # Will be zero if Truth=0 or Prediction=0
-    union = prediction[prediction==1].float().sum((1,2)) + target[target==1].float().sum() - intersection      # Will be zzero if both are 0
+    union = prediction.float().sum((1,2)) + target.float().sum((1,2)) - intersection      # Will be zzero if both are 0
     
     iou = (intersection + smooth) / (union + smooth)  # We smooth our devision to avoid 0/0
     
