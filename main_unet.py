@@ -165,6 +165,8 @@ def main():
     
     # start training
     for epoch in range(args.start_epoch, args.epochs):
+        print('\nEpoch {:d}\n'.format(epoch))
+
         train_loss, train_dice, train_iou, iteration = ut.train(
             train_loader, model, criterion, optimizer,
             writer_train, iteration, cuda)

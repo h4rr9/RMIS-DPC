@@ -98,17 +98,17 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     train_dice = train_dice/train_batches
     train_loss = train_loss/train_batches
 
-    print("Train Loss: ", train_loss)
-    print("Train DICE score: " , train_dice)
-    print("Train IoU score: ", train_IOU)
+    print("Train Loss: {:.3f} ".format(train_loss))
+    print("Train DICE score: {:.3f}".format(train_dice.item()))
+    print("Train IoU score: {:.3f}\n".format(train_IOU.item()))
 
     total_loss.append(train_loss)
     total_dice.append(train_dice)
     total_iou.append(train_IOU)
 
-    np.savetxt("Train_Loss.csv", train_loss, delimiter =", ", fmt ='%1.9f')
-    np.savetxt("Train_DICE.csv", train_dice, delimiter =", ", fmt ='%1.9f')
-    np.savetxt("Train_IoU.csv", train_IOU, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Train_Loss.csv", train_loss, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Train_DICE.csv", train_dice, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Train_IoU.csv", train_IOU, delimiter =", ", fmt ='%1.9f')
     
     return train_loss, train_dice, train_IOU, iteration
 
@@ -128,7 +128,7 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     model.eval()
     with torch.no_grad():
 
-        for data in enumerate(val_dataloader, 0):
+        for i, data in enumerate(val_dataloader, 0):
             # get inputs and labels
             inputs, labels = data
 
@@ -136,7 +136,7 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
             labels = labels.to(cuda)
             
             # compute predictions and loss
-            pred = model(inputs)
+            pred = model(inputs).squeeze(1)
             loss = loss_fn(pred, labels)
 
             # epoch val loss
@@ -152,16 +152,16 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     val_dice = val_dice/val_batches
     val_loss = val_loss/val_batches
 
-    print("Validation Loss: " + val_loss)
-    print("Validation DICE score: " + val_dice)
-    print("Validation IoU score: " + val_IOU)
+    print("Validation Loss: {:.3f}".format(val_loss))
+    print("Validation DICE score: {:.3f}".format(val_dice.item()))
+    print("Validation IoU score: {:.3f}".format(val_IOU.item()))
 
     total_loss.append(val_loss)
     total_dice.append(val_dice)
     total_iou.append(val_IOU)
 
-    np.savetxt("Val_Loss.csv", val_loss, delimiter =", ", fmt ='%1.9f')
-    np.savetxt("Val_DICE.csv", val_dice, delimiter =", ", fmt ='%1.9f')
-    np.savetxt("Val_IoU.csv", val_IOU, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Val_Loss.csv", val_loss, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Val_DICE.csv", val_dice, delimiter =", ", fmt ='%1.9f')
+    # np.savetxt("Val_IoU.csv", val_IOU, delimiter =", ", fmt ='%1.9f')
     
     return val_loss, val_dice, val_IOU
