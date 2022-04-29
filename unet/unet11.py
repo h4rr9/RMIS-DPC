@@ -138,8 +138,6 @@ class UNet11(nn.Module):
         conv5 = self.conv5(self.pool(conv4))
         center = self.center(self.pool(conv5))
 
-        print(conv5.shape, center.shape)
-
         dec5 = self.dec5(torch.cat([center, conv5], 1))
         dec4 = self.dec4(torch.cat([dec5, conv4], 1))
         dec3 = self.dec3(torch.cat([dec4, conv3], 1))
@@ -156,7 +154,8 @@ class UNet11(nn.Module):
 
 if __name__ == "__main__":
     m = UNet11(num_classes=1, pretrained=False)
-    x = torch.randn(1, 3, 512, 512)
+    # x = torch.randn(1, 3, 512, 512)
+    x = torch.randn(1, 3, 540, 540)
 
     __import__('ipdb').set_trace()
 
