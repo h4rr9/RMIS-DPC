@@ -33,6 +33,27 @@ class Resize:
                                                    F.InterpolationMode.NEAREST)
 
 
+class RandomSplit:
+
+    def __init__(self):
+        pass
+
+    def __call__(self, img, target):
+
+        W, H = img.size
+
+        if random.random() > 0.5:
+            # use left split
+            img = img.crop((0, 0, H, H))
+            target = target.crop((0, 0, H, H))
+        else:
+            # use right split
+            img = img.crop((W - H, 0, W, H))
+            target = target.crop((W - H, 0, W, H))
+
+        return img, target
+
+
 class RandomVerticalFlip:
 
     def __init__(self, prob=0.5):
