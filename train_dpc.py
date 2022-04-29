@@ -170,8 +170,19 @@ def main():
             Normalize()
         ])
 
-    train_loader = get_data(transform, args, 'train')
-    val_loader = get_data(transform, args, 'val')
+    train_loader = get_data(return_video=True,
+                            video_transforms=transform,
+                            return_last_frame=False,
+                            last_frame_transforms=None,
+                            args=args,
+                            mode='train')
+
+    val_loader = get_data(return_video=True,
+                          video_transforms=transform,
+                          return_last_frame=False,
+                          last_frame_transforms=None,
+                          args=args,
+                          mode='val')
 
     de_noramalize = denorm()
     img_path, model_path = utils.set_path(args)

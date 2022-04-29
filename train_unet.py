@@ -144,8 +144,18 @@ def main():
         ])
 
     # get training and val data
-    train_loader = get_data(transform, args, 'train')
-    val_loader = get_data(transform, args, 'val')
+    train_loader = get_data(return_video=False,
+                            video_transforms=None,
+                            return_last_frame=True,
+                            last_frame_transforms=transform,
+                            args=args,
+                            mode='train')
+    val_loader = get_data(return_video=False,
+                          video_transforms=None,
+                          return_last_frame=True,
+                          last_frame_transforms=transform,
+                          args=args,
+                          mode='val')
 
     print("loader:", len(train_loader))
 
