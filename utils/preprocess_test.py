@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     stages = ['Stage_1', 'Stage_2', 'Stage_3']
-    surgeries = ['Proctocolectomy', 'Rectal resection']
+    surgeries = ['Proctocolectomy', 'Rectal resection', 'Sigmoid']
     patients = [str(i) for i in range(1, 11)]
 
     videos = dict()
