@@ -211,7 +211,7 @@ def main():
           (args.start_epoch, args.epochs))
 
 
-def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
+def train(data_loader, model, loss_fn, optimizer, epoch, writer, cuda):
     losses = AverageMeter()
     dices = AverageMeter()
     ious = AverageMeter()
@@ -224,8 +224,6 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
         tic = time.time()
 
         # get inputs and labels
-
-        model.train()
 
         inputs = inputs.to(cuda)
         labels = labels.to(cuda).squeeze(1)
@@ -251,7 +249,7 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
         if idx % args.print_freq == 0:
             print('Epoch: [{0}][{1}/{2}]\t'
                   'Loss {loss.val:.6f} ({loss.local_avg:.4f})\t'
-                  'Dice: {3:.4f} IOU: {4:.4f} t:{5:.2f}\t'.format(
+                  'Dice: {3:.4f} IOU: {4:.4f} T:{5:.2f}\t'.format(
                       epoch,
                       idx,
                       len(data_loader),
@@ -259,9 +257,9 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
                       _iou,
                       time.time() - tic,
                       loss=losses))
-            train_writer.add_scalar('local/loss', losses.val, iteration)
-            train_writer.add_scalar('local/dice', dices.val, iteration)
-            train_writer.add_scalar('local/iou', ious.val, iteration)
+            writer.add_scalar('local/loss', losses.val, iteration)
+            writer.add_scalar('local/dice', dices.val, iteration)
+            writer.add_scalar('local/iou', ious.val, iteration)
             iteration += 1
 
     return losses.local_avg, dices.local_avg, ious.local_avg

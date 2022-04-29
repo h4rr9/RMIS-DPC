@@ -13,7 +13,7 @@ def iou_dice_score_image(probs, target):
     FP = (prediction[~target_mask]).float().sum().item()
     FN = (~prediction[target_mask]).float().sum().item()
 
-    if torch.sum(target) == 0.:
+    if ~torch.any(target_mask):
         return (1, 1) if FP == 0 else (0, 0)
 
     iou = (TP + smooth) / (TP + FP + FN + smooth)
@@ -46,8 +46,8 @@ def dice_score_image(probs, target):
     FP = (prediction[~target_mask]).float().sum().item()
     FN = (~prediction[target_mask]).float().sum().item()
 
-    if torch.sum(target) == 0.:
-        return 1 if FP == 0 else 0
+    if ~torch.any(target_mask):
+        return (1, 1) if FP == 0 else (0, 0)
 
     dice = (2 * TP + smooth) / (TP + FP + TP + FN + smooth)
 
@@ -85,7 +85,7 @@ def iou_score_image(probs, target):
     FP = (prediction[~target_mask]).float().sum().item()
     FN = (~prediction[target_mask]).float().sum().item()
 
-    if torch.sum(target) == 0.:
+    if ~torch.any(target_mask):
         return 1 if FP == 0 else 0
 
     iou = (TP + smooth) / (TP + FP + FN + smooth)
