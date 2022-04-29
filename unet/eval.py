@@ -68,7 +68,7 @@ def iou_score_image(probs, target):
     prediction[probs < 0.5] = 0
     prediction = prediction.cuda()
 
-    TP = torch.sum(torch.mul(target == 0, prediction == 1)).item()
+    TP = torch.sum(torch.mul(target == 1, prediction == 1)).item()
     FP = torch.sum(torch.mul(target == 0, prediction == 1)).item()
     FN = torch.sum(torch.mul(target == 1, prediction == 0)).item()
 
