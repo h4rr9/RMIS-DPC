@@ -141,7 +141,7 @@ def main():
             T.RandomSplit(),
             T.RandomHorizontalFlip(),
             T.RandomVerticalFlip(),
-            T.RandomGray(consistent=False, p=0.5),
+            T.RandomGray(p=0.5),
             T.ColorJitter(brightness=0.5,
                           contrast=0.5,
                           saturation=0.5,
