@@ -253,21 +253,13 @@ class ColorJitter(object):
 class RandomGray:
     '''Actually it is a channel splitting, not strictly grayscale images'''
 
-    def __init__(self, consistent=True, p=0.5):
-        self.consistent = consistent
+    def __init__(self, p=0.5):
         self.p = p  # probability to apply grayscale
 
     def __call__(self, img, target):
 
-        if self.consistent:
-            if random.random() < self.p:
-                return self.grayscale(img), target
-            else:
-                return img, target
-        else:
-
-            if random.random() < self.p:
-                return self.grayscale(img), target
+        if random.random() < self.p:
+            return self.grayscale(img), target
 
     def grayscale(self, img):
         channel = np.random.choice(3)
