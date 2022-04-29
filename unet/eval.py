@@ -61,22 +61,18 @@ def iou_score_image(probs, target):
       Returns:
           m_dice (float): Mean dice score over classes
     '''
-    smooth = 1
+    smooth = 1e-6
     target = target.squeeze(1)  # BATCH x 1 x H x W => BATCH x H x W
-    prediction = torch.empty(probs.shape)
-    prediction[probs >= 0.5] = 1
-    prediction[probs < 0.5] = 0
-    prediction = prediction.cuda()
+    prediction = (probs > 0.5).cuda()
 
-    TP = torch.sum(torch.mul(target == 1, prediction == 1)).item()
-    FP = torch.sum(torch.mul(target == 0, prediction == 1)).item()
-    FN = torch.sum(torch.mul(target == 1, prediction == 0)).item()
+    target_mask = target > 0.
 
-    if torch.sum(target) == 0:
-        if FP == 0:
-            return 1
-        else:
-            return 0
+    TP = (prediction[target_mask]).float().sum().item()
+    FP = (prediction[~target_mask]).float().sum().item()
+    FN = (~prediction[target_mask]).float().sum().item()
+
+    if torch.sum(target) == 0.:
+        return 1 if FP == 0 else 0
 
     iou = (TP + smooth) / (TP + FP + FN + smooth)
 
