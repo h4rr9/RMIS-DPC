@@ -1,7 +1,10 @@
 from unet import iou_score_image
 from unet import dice_score_image
+from unet import iou_dice_score_image
 from unet import UNet11
 from unet import DICE_Loss
+
+from dpc import AverageMeter
 
 import unet.transform as T
 
@@ -12,6 +15,7 @@ from dpc import save_checkpoint
 import os
 import re
 import argparse
+import time
 
 import numpy as np
 
@@ -83,6 +87,7 @@ parser.add_argument('--num_classes', default=1, type=int)
 
 
 def main():
+    global args
     args = parser.parse_args()
     cuda = torch.device('cuda')
 
@@ -172,11 +177,11 @@ def main():
         print('\nEpoch {:d}\n'.format(epoch))
 
         train_loss, train_dice, train_iou, iteration = train(
-            train_loader, model, criterion, optimizer, writer_train, iteration,
-            cuda)
+            train_loader, model, criterion, optimizer, epoch, writer_train,
+            iteration, cuda)
 
         val_loss, val_dice, val_iou = validate(val_loader, model, criterion,
-                                               writer_val, cuda)
+                                               epoch, writer_val, cuda)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
@@ -246,44 +251,34 @@ def test(test_dataloader, model, loss_fn, cuda):
         return test_loss, test_dice, test_IOU
 
 
-def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration,
-          cuda):
-    train_batches = len(train_dataloader)
-    total_loss = []
-    total_dice = []
-    total_iou = []
+def train(data_loader, model, loss_fn, optimizer, epoch, train_writer,
+          iteration, cuda):
+    losses = AverageMeter()
+    dices = AverageMeter()
+    ious = AverageMeter()
 
-    train_loss, train_IOU, train_dice = 0, 0, 0
+    global iteration
 
     # train the model
     model.train()
-    for i, (inputs, labels) in tqdm(enumerate(train_dataloader)):
+    for idx, (inputs, labels) in tqdm(enumerate(data_loader)):
+        tic = time.time()
 
         # get inputs and labels
 
         model.train()
 
-        # print(inputs.shape)
-        # print(type(inputs))
-        # print('\n')
-        # print(labels.shape)
-        # print(type(labels))
-
         inputs = inputs.to(cuda)
-        labels = labels.to(cuda)
+        labels = labels.to(cuda).squeeze(1)
+
+        B, _, _ = labels.shape
 
         # compute predictions and loss
         pred = model(inputs).squeeze(1)
 
-        # print("pred minimum val: ", torch.min(pred))
-        # print("pred max val: ", torch.min(pred))
-        # print("preds: ", pred)
-        # print("target:", labels)
-
         loss = loss_fn(pred, labels)
 
         # epoch train loss
-        train_loss += loss.item()
 
         # backward
         optimizer.zero_grad()
@@ -291,73 +286,71 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration,
         optimizer.step()
 
         # evaluate the model over training
-        train_IOU += iou_score_image(pred, labels)
-        train_dice += dice_score_image(pred, labels)
+        _iou, _dice = iou_dice_score_image(pred, labels)
 
-        if i % 5 == 0:
-            train_writer.add_scalar('local/loss', train_loss, iteration)
-            train_writer.add_scalar('local/dice', train_dice, iteration)
-            train_writer.add_scalar('local/iou', train_IOU, iteration)
-            iteration += 1
+        losses.update(loss.item(), B)
+        dices.update(_dice, B)
+        ious.update(_iou, B)
 
-    # per batch avg dice & iou
-    train_IOU = train_IOU / train_batches
-    train_dice = train_dice / train_batches
-    train_loss = train_loss / train_batches
+        train_writer.add_scalar('local/loss', losses.val, iteration)
+        train_writer.add_scalar('local/dice', dices.val, iteration)
+        train_writer.add_scalar('local/iou', ious.val, iteration)
+        iteration += 1
 
-    print("Train Loss: {:.3f} ".format(train_loss))
-    print("Train DICE score: {:.3f}".format(train_dice))
-    print("Train IoU score: {:.3f}\n".format(train_IOU))
+    if idx % args.print_freq == 0:
+        print('Epoch: [{0}][{1}/{2}]\t'
+              'Loss {loss.val:.6f} ({loss.local_avg:.4f})\t'
+              'Dice: {3:.4f} IOU: {4:.4f} t:{5:.2f}\t'.format(epoch,
+                                                              idx,
+                                                              len(data_loader),
+                                                              _dice,
+                                                              _iou,
+                                                              time.time() -
+                                                              tic,
+                                                              loss=losses))
 
-    total_loss.append(train_loss)
-    total_dice.append(train_dice)
-    total_iou.append(train_IOU)
-
-    return train_loss, train_dice, train_IOU, iteration
+    return losses.local_avg, dices.local_avg, ious.local_avg
 
 
-def validate(val_dataloader, model, loss_fn, val_writer, cuda):
-    val_batches = len(val_dataloader)
-    total_loss = []
-    total_dice = []
-    total_iou = []
+def validate(data_loader, model, loss_fn, epoch, writer, cuda):
 
-    val_loss, val_IOU, val_dice = 0, 0, 0
+    losses = AverageMeter()
+    dices = AverageMeter()
+    ious = AverageMeter()
 
     # evaluate the model
     model.eval()
     with torch.no_grad():
 
-        for i, (inputs, labels) in tqdm(enumerate(val_dataloader, 0)):
+        for idx, (inputs, labels) in tqdm(enumerate(data_loader),
+                                          total=len(data_loader)):
 
             inputs = inputs.to(cuda)
-            labels = labels.to(cuda)
+            labels = labels.to(cuda).squeeze(1)
+
+            B, _, _ = labels.shape
 
             # compute predictions and loss
             pred = model(inputs).squeeze(1)
             loss = loss_fn(pred, labels)
 
             # epoch val loss
-            val_loss += loss.item()
+            _iou, _dice = iou_dice_score_image(pred, labels)
 
-            # evaluate the model over validation
-            val_IOU += iou_score_image(pred, labels)
-            val_dice += dice_score_image(pred, labels)
+            losses.update(loss.item(), B)
+            dices.update(_dice, B)
+            ious.update(_iou, B)
 
     # per batch avg dice & iou
-    val_IOU = val_IOU / val_batches
-    val_dice = val_dice / val_batches
-    val_loss = val_loss / val_batches
 
-    print("Validation loss: {:.3f}".format(val_loss))
-    print("Validation dice: {:.3f}".format(val_dice))
-    print("Validation iou: {:.3f}\n".format(val_IOU))
+    print('[{0}/{1}] Loss {loss.local_avg:.4f}\t'
+          'Dice:  {2:.4f}; IOU {3:.4f}\t'.format(epoch,
+                                                 args.epochs,
+                                                 _dice,
+                                                 _iou,
+                                                 loss=losses))
 
-    total_loss.append(val_loss)
-    total_dice.append(val_dice)
-    total_iou.append(val_IOU)
-
-    return val_loss, val_dice, val_IOU
+    return losses.local_avg, dices.local_avg, ious.local_avg
 
 
 if __name__ == '__main__':
