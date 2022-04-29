@@ -176,8 +176,8 @@ def main():
     de_noramalize = denorm()
     img_path, model_path = utils.set_path(args)
 
-    writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))
-    writer_val = SummaryWriter(logdir=os.path.join(img_path, 'val'))
+    writer_train = SummaryWriter(log_dir=os.path.join(img_path, 'train'))
+    writer_val = SummaryWriter(log_dir=os.path.join(img_path, 'val'))
 
     for epoch in range(args.start_epoch, args.epochs):
         train_loss, train_acc, train_accuracy_list = train(
