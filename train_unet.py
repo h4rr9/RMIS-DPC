@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 import torch
 import torch.optim as optim
-import utils as utils
+from utils import utils
 
 plt.switch_backend('agg')
 
