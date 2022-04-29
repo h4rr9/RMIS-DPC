@@ -1,5 +1,4 @@
 from .unet11 import UNet11
-import transform as T
 
 from .eval import dice_score_dataset
 from .eval import dice_score_image

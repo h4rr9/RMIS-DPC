@@ -1,7 +1,9 @@
 from unet import iou_score_image
 from unet import dice_score_image
 from unet import UNet11
-from unet import DICE_Loss, T
+from unet import DICE_Loss
+
+import unet.transform as T
 
 from dataset import get_data
 
