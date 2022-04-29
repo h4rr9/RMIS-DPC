@@ -139,9 +139,8 @@ def main():
             #               saturation=0.5,
             #               hue=0.25,
             #               p=1.0),
-            T.Resize(),
+            T.RandomSplit(),
             T.ToTensor(),
-            T.Normalize()
         ])
 
     # get training and val data
