@@ -214,7 +214,7 @@ def test(test_dataloader, model, loss_fn, cuda):
 
     model.eval()
     with torch.no_grad():
-        for inputs, labels in enumerate(test_dataloader):
+        for i, (inputs, labels) in enumerate(test_dataloader):
             # get inputs and labels
 
             inputs = inputs.to(cuda)
@@ -257,13 +257,11 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration,
 
     # train the model
     model.train()
-    for i, data in tqdm(enumerate(train_dataloader)):
+    for i, (inputs, labels) in tqdm(enumerate(train_dataloader)):
 
         # get inputs and labels
 
         model.train()
-
-        inputs, labels = data
 
         # print(inputs.shape)
         # print(type(inputs))
@@ -330,7 +328,7 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     model.eval()
     with torch.no_grad():
 
-        for i, inputs, labels in tqdm(enumerate(val_dataloader, 0)):
+        for i, (inputs, labels) in tqdm(enumerate(val_dataloader, 0)):
 
             inputs = inputs.to(cuda)
             labels = labels.to(cuda)
