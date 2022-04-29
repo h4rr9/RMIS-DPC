@@ -152,10 +152,8 @@ class RMIS(data.Dataset):
             # apply last_frame_transforms
 
             if self.last_frame_transforms:
-                # print("imgage:", type(last_frame))
-                # print("before:",mask.shape)
+
                 last_frame, mask = self.last_frame_transforms(last_frame, mask)
-            # print("after:",mask.shape)
 
             data.extend([last_frame, mask])
 

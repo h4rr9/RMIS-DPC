@@ -27,9 +27,8 @@ class Resize:
         pass
 
     def __call__(self, img, target):
-        # print("resize")
-        # print(type(img), type(target))
-        return F.resize(img, (128, 128)), F.resize(target, (128, 128),
+
+        return F.resize(img, (540, 540)), F.resize(target, (540, 540),
                                                    F.InterpolationMode.NEAREST)
 
 
@@ -109,8 +108,6 @@ class Compose:
         self.transforms = transforms
 
     def __call__(self, image, target):
-        # print("image:",type(image))
-        #  print("target:",type(target))
 
         for t in self.transforms:
             image, target = t(image, target)
