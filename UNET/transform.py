@@ -28,7 +28,8 @@ class Resize:
     def __call__(self, img, target):
         #print("resize")
         # print(type(img), type(target))
-        return F.resize(img, (128, 128)), F.resize(target, (128, 128))
+        return F.resize(img, (128, 128)), F.resize(target, (128, 128),
+                                                   F.InterpolationMode.NEAREST)
 
 
 class RandomVerticalFlip:
