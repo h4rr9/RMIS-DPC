@@ -31,9 +31,9 @@ def test(test_dataloader, model, loss_fn, cuda):
         test_dice = test_dice/test_batches
         test_loss = test_loss/test_batches
 
-        print("Test Loss: " + test_loss)
-        print("Test DICE score: " + test_dice)
-        print("Test IoU score: " + test_IOU)
+        print("Test Loss: ", test_loss)
+        print("Test DICE score: ", test_dice)
+        print("Test IoU score: ", test_IOU)
 
         np.savetxt("Test_Metrics.csv", [test_IOU, test_dice, test_loss], delimiter =", ", fmt ='%1.9f')
         
@@ -56,6 +56,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     for i, data in enumerate(train_dataloader):
         # get inputs and labels
 
+        model.train()
+
         inputs, labels = data
         
        # print(inputs.shape)
@@ -70,8 +72,10 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
         # compute predictions and loss
         pred = model(inputs).squeeze(1)
 
-        # print("pred:", pred.shape)
-        # print("target:", labels.shape)
+        # print("pred minimum val: ", torch.min(pred))
+        # print("pred max val: ", torch.min(pred))
+        # print("preds: ", pred)
+        # print("target:", labels)
 
         loss = loss_fn(pred, labels)
 
@@ -90,7 +94,7 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
         if i % 5 == 0:
             train_writer.add_scalar('local/loss', train_loss, iteration)
             train_writer.add_scalar('local/dice', train_dice, iteration)
-            train_writer.add_scalar('local/iou', train_IOU.item(), iteration)
+            train_writer.add_scalar('local/iou', train_IOU, iteration)
             iteration += 1
 
     # per batch avg dice & iou
@@ -99,8 +103,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration, 
     train_loss = train_loss/train_batches
 
     print("Train Loss: {:.3f} ".format(train_loss))
-    print("Train DICE score: {:.3f}".format(train_dice.item()))
-    print("Train IoU score: {:.3f}\n".format(train_IOU.item()))
+    print("Train DICE score: {:.3f}".format(train_dice))
+    print("Train IoU score: {:.3f}\n".format(train_IOU))
 
     total_loss.append(train_loss)
     total_dice.append(train_dice)
@@ -151,10 +155,10 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     val_IOU = val_IOU/val_batches
     val_dice = val_dice/val_batches
     val_loss = val_loss/val_batches
-
-    print("Validation Loss: {:.3f}".format(val_loss))
-    print("Validation DICE score: {:.3f}".format(val_dice.item()))
-    print("Validation IoU score: {:.3f}".format(val_IOU.item()))
+    
+    print("Validation loss: {:.3f}".format(val_loss))
+    print("Validation dice: {:.3f}".format(val_dice))
+    print("Validation iou: {:.3f}\n".format(val_IOU))
 
     total_loss.append(val_loss)
     total_dice.append(val_dice)

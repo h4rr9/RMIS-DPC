@@ -17,8 +17,9 @@ class DICE_Loss(nn.Module):
     def forward(self, pred, target):
 
         # calculation of DICE loss
-        numerator = (pred * target).sum(dim=self.dice_dims)
-        denominator = (pred ** 2 + target ** 2).sum(dim=self.dice_dims)
+        target = target.squeeze(1)
+        numerator = (pred * target).sum((1,2))
+        denominator = (pred ** 2 + target ** 2).sum((1,2))
 
         # epsilon to avoid 0 div error in the denominator
         dice_score =  2 * numerator / (denominator + 1e-15)

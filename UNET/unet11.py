@@ -107,6 +107,7 @@ class UNet11(nn.Module):
         self.dec1 = ConvRelu(64 + num_filters, num_filters)
 
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         conv1 = self.conv1(x)
@@ -125,6 +126,6 @@ class UNet11(nn.Module):
         if self.num_classes > 1:
             x_out = F.log_softmax(self.final(dec1), dim=1)
         else:
-            x_out = self.final(dec1)
+            x_out = self.sigmoid(self.final(dec1))
 
         return x_out

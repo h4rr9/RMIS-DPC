@@ -3,14 +3,14 @@ from torch.nn import functional as F
 import numpy as np
 
 
-def dice_score_image(prediction, target):
+def dice_score_image(probs, target):
     '''
       compute the mean dice score for a single image
 
       Reminders: A false positive is a result that indicates a given condition exists, when it does not
                A false negative is a test result that indicates that a condition does not hold, while in fact it does
       Args:
-          prediction (tensor): predictied labels of the image
+          probs (tensor): probability scores of the mask being present at that pixel
           target (tensor): ground truth of the image
       Returns:
           m_dice (float): Mean dice score over classes
@@ -26,34 +26,74 @@ def dice_score_image(prediction, target):
 
     smooth = 1.
     target = target.squeeze(1)
+    prediction = torch.empty(probs.shape)
+    prediction[probs >= 0.5] = 1
+    prediction[probs < 0.5] = 0
+    prediction = prediction.cuda()
 
-    intersection = (prediction == target).float().sum((1,2))
-    dice = (2. * intersection + smooth)/(prediction.float().sum((1,2)) + target.float().sum((1,2)) + smooth)
+    TP = torch.sum(torch.mul(target == 1, prediction == 1)).item()
+    FP = torch.sum(torch.mul(target == 0, prediction == 1)).item()
+    FN = torch.sum(torch.mul(target == 1, prediction == 0)).item()
 
-    return dice.mean()
+    if torch.sum(target) == 0:
+        if FP == 0:
+            return 1
+        else:
+            return 0
+
+    dice = (2*TP + smooth) / (TP + FP + TP + FN + smooth)
+
+    # give dice score of 1 if FP in that batch is 0, else 1
+    # dice[(target.sum((1,2)) == 0)] = 0
+    # dice[(target.sum((1,2)) == 0)*(FP == 0)] = 1
+
+    # intersection = (prediction == target).float().sum((1,2))
+    # dice = (2. * intersection + smooth)/(prediction.sum((1,2)) + target.sum((1,2)) + smooth)
+
+    # return dice.mean()
+    return dice
 
 
-def iou_score_image(prediction, target):
+def iou_score_image(probs, target):
     '''
       computer the mean dice score for a single image
 
       Reminders: A false positive is a result that indicates a given condition exists, when it does not
                A false negative is a test result that indicates that a condition does not hold, while in fact it does
       Args:
-          prediction (tensor): predictied labels of the image
+          probs (tensor): probability scores of the mask being present at that pixel
           target (tensor): ground truth of the image
       Returns:
           m_dice (float): Mean dice score over classes
     '''
     smooth = 1
     target = target.squeeze(1)  # BATCH x 1 x H x W => BATCH x H x W
+    prediction = torch.empty(probs.shape)
+    prediction[probs >= 0.5] = 1
+    prediction[probs < 0.5] = 0
+    prediction = prediction.cuda()
+
+    TP = torch.sum(torch.mul(target==0, prediction==1)).item()
+    FP = torch.sum(torch.mul(target==0, prediction==1)).item()
+    FN = torch.sum(torch.mul(target==1, prediction==0)).item()
+
+    if torch.sum(target) == 0:
+        if FP == 0:
+            return 1
+        else:
+            return 0
+
+    iou = (TP + smooth) / (TP + FP + FN + smooth)
+
+    # boolTensor = (prediction == target).float()
+    # intersection = boolTensor.sum((1, 2))
+    # union = prediction.float().sum((1,2)) + target.float().sum((1,2)) - intersection
     
-    intersection = (prediction == target).float().sum((1, 2))  # Will be zero if Truth=0 or Prediction=0
-    union = prediction.float().sum((1,2)) + target.float().sum((1,2)) - intersection      # Will be zzero if both are 0
+    # iou = (intersection + smooth) / (union + smooth)  # We smooth our devision to avoid 0/0
     
-    iou = (intersection + smooth) / (union + smooth)  # We smooth our devision to avoid 0/0
-    
-    return iou.mean()
+    # return iou.mean()
+
+    return iou
 
 def dice_score_dataset(model, dataset):
     """
