@@ -96,6 +96,7 @@ def denorm(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
 
 class AverageMeter(object):
     """Computes and stores the average and current value"""
+
     def __init__(self):
         self.reset()
 
@@ -135,6 +136,7 @@ class AverageMeter(object):
 
 class AccuracyTable(object):
     '''compute accuracy for each class'''
+
     def __init__(self):
         self.dict = {}
 
@@ -160,6 +162,7 @@ class AccuracyTable(object):
 
 class ConfusionMeter(object):
     '''compute and show confusion matrix'''
+
     def __init__(self, num_class):
         self.num_class = num_class
         self.mat = np.zeros((num_class, num_class))

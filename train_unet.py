@@ -175,9 +175,9 @@ def main():
     # start training
     for epoch in range(args.start_epoch, args.epochs):
 
-        train_loss, train_dice, train_iou, iteration = train(
-            train_loader, model, criterion, optimizer, epoch, writer_train,
-            cuda)
+        train_loss, train_dice, train_iou = train(train_loader, model,
+                                                  criterion, optimizer, epoch,
+                                                  writer_train, cuda)
 
         val_loss, val_dice, val_iou = validate(val_loader, model, criterion,
                                                epoch, writer_val, cuda)
@@ -211,45 +211,6 @@ def main():
           (args.start_epoch, args.epochs))
 
 
-# test
-def test(test_dataloader, model, loss_fn, cuda):
-    test_batches = len(test_dataloader)
-    test_loss, test_IOU, test_dice = 0, 0, 0
-
-    model.eval()
-    with torch.no_grad():
-        for i, (inputs, labels) in enumerate(test_dataloader):
-            # get inputs and labels
-
-            inputs = inputs.to(cuda)
-            labels = labels.to(cuda)
-
-            # compute predictions and loss
-            pred = model(inputs)
-            loss = loss_fn(pred, labels)
-
-            test_loss += loss.item()
-
-            # evaluate the model over validation
-            test_IOU += iou_score_image(pred, labels)
-            test_dice += dice_score_image(pred, labels)
-
-        # per batch avg dice & iou
-        test_IOU = test_IOU / test_batches
-        test_dice = test_dice / test_batches
-        test_loss = test_loss / test_batches
-
-        print("Test Loss: ", test_loss)
-        print("Test DICE score: ", test_dice)
-        print("Test IoU score: ", test_IOU)
-
-        np.savetxt("Test_Metrics.csv", [test_IOU, test_dice, test_loss],
-                   delimiter=", ",
-                   fmt='%1.9f')
-
-        return test_loss, test_dice, test_IOU
-
-
 def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
     losses = AverageMeter()
     dices = AverageMeter()
@@ -259,7 +220,7 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
 
     global iteration
 
-    for idx, (inputs, labels) in tqdm(enumerate(data_loader)):
+    for idx, (inputs, labels) in enumerate(data_loader):
         tic = time.time()
 
         # get inputs and labels
@@ -273,10 +234,7 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
 
         # compute predictions and loss
         pred = model(inputs).squeeze(1)
-
         loss = loss_fn(pred, labels)
-
-        # epoch train loss
 
         # backward
         optimizer.zero_grad()
@@ -290,22 +248,21 @@ def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
         dices.update(_dice, B)
         ious.update(_iou, B)
 
-        train_writer.add_scalar('local/loss', losses.val, iteration)
-        train_writer.add_scalar('local/dice', dices.val, iteration)
-        train_writer.add_scalar('local/iou', ious.val, iteration)
-        iteration += 1
-
-    if idx % args.print_freq == 0:
-        print('Epoch: [{0}][{1}/{2}]\t'
-              'Loss {loss.val:.6f} ({loss.local_avg:.4f})\t'
-              'Dice: {3:.4f} IOU: {4:.4f} t:{5:.2f}\t'.format(epoch,
-                                                              idx,
-                                                              len(data_loader),
-                                                              _dice,
-                                                              _iou,
-                                                              time.time() -
-                                                              tic,
-                                                              loss=losses))
+        if idx % args.print_freq == 0:
+            print('Epoch: [{0}][{1}/{2}]\t'
+                  'Loss {loss.val:.6f} ({loss.local_avg:.4f})\t'
+                  'Dice: {3:.4f} IOU: {4:.4f} t:{5:.2f}\t'.format(
+                      epoch,
+                      idx,
+                      len(data_loader),
+                      _dice,
+                      _iou,
+                      time.time() - tic,
+                      loss=losses))
+            train_writer.add_scalar('local/loss', losses.val, iteration)
+            train_writer.add_scalar('local/dice', dices.val, iteration)
+            train_writer.add_scalar('local/iou', ious.val, iteration)
+            iteration += 1
 
     return losses.local_avg, dices.local_avg, ious.local_avg
 
@@ -340,12 +297,11 @@ def validate(data_loader, model, loss_fn, epoch, writer, cuda):
             ious.update(_iou, B)
 
     # per batch avg dice & iou
-
     print('[{0}/{1}] Loss {loss.local_avg:.4f}\t'
           'Dice:  {2:.4f}; IOU {3:.4f}\t'.format(epoch,
                                                  args.epochs,
-                                                 _dice,
-                                                 _iou,
+                                                 dices.avg,
+                                                 ious.avg,
                                                  loss=losses))
 
     return losses.local_avg, dices.local_avg, ious.local_avg
