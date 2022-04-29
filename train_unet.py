@@ -17,8 +17,6 @@ import re
 import argparse
 import time
 
-import numpy as np
-
 from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
