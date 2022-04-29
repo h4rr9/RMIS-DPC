@@ -11,24 +11,25 @@ import torchvision
 from torchvision import transforms
 import torchvision.transforms.functional as F
 
-class ToTensor:
 
+class ToTensor:
     def __init__(self):
         pass
 
     def __call__(self, img, target):
-        
+
         return F.to_tensor(img), F.to_tensor(target)
 
-class Resize:
 
+class Resize:
     def __init__(self):
         pass
 
     def __call__(self, img, target):
         #print("resize")
-       # print(type(img), type(target))
-        return F.resize(img, (128,128)), F.resize(target,(128,128))
+        # print(type(img), type(target))
+        return F.resize(img, (128, 128)), F.resize(target, (128, 128))
+
 
 class RandomVerticalFlip:
     def __init__(self, prob=0.5):
@@ -36,24 +37,26 @@ class RandomVerticalFlip:
         self.degree = 180
 
     def __call__(self, image, target):
-        
+
         if torch.rand(1) < self.prob:
             image = F.vflip(image)
             target = F.vflip(target)
-                
+
         return image, target
+
 
 class RandomHorizontalFlip:
     def __init__(self, prob=0.5):
         self.prob = prob
 
     def __call__(self, image, target):
-    
-        if torch.randn(1) < self.prob: 
+
+        if torch.randn(1) < self.prob:
             image = F.hflip(image)
             target = F.hflip(target)
-                
+
         return image, target
+
 
 class Rotate:
     def __init__(self, prob=0.5):
@@ -61,7 +64,7 @@ class Rotate:
         self.degree = 15
 
     def __call__(self, image, target):
-        
+
         deg = np.random.randint(-self.degree, self.degree, 1)[0]
         if torch.rand(1) < self.prob:
             if torch.randn(1) < self.prob:
@@ -70,20 +73,22 @@ class Rotate:
             else:
                 image = F.rotate(image, deg)
                 target = F.rotate(target, deg)
-                
+
         return image, target
+
 
 class Compose:
     def __init__(self, transforms):
         self.transforms = transforms
 
     def __call__(self, image, target):
-       # print("image:",type(image))
-      #  print("target:",type(target))
+        # print("image:",type(image))
+        #  print("target:",type(target))
 
         for t in self.transforms:
             image, target = t(image, target)
         return image, target
+
 
 class ColorJitter(object):
     """Randomly change the brightness, contrast and saturation of an image. --modified from pytorch source code
@@ -101,7 +106,6 @@ class ColorJitter(object):
             hue_factor is chosen uniformly from [-hue, hue] or the given [min, max].
             Should have 0<= hue <= 0.5 or -0.5 <= min <= max <= 0.5.
     """
-
     def __init__(self,
                  brightness=0,
                  contrast=0,
@@ -189,7 +193,7 @@ class ColorJitter(object):
         return transform
 
     def __call__(self, seg_img, target):
-    
+
         if random.random() < self.threshold:  # do ColorJitter
             if self.consistent:
                 transform = self.get_params(self.brightness, self.contrast,
@@ -212,15 +216,15 @@ class ColorJitter(object):
         format_string += ', hue={0})'.format(self.hue)
         return format_string
 
+
 class RandomGray:
     '''Actually it is a channel splitting, not strictly grayscale images'''
-
     def __init__(self, consistent=True, p=0.5):
         self.consistent = consistent
         self.p = p  # probability to apply grayscale
 
     def __call__(self, img, target):
-        
+
         if self.consistent:
             if random.random() < self.p:
                 return self.grayscale(img), target
@@ -238,13 +242,13 @@ class RandomGray:
         img = Image.fromarray(np_img, 'RGB')
         return img
 
+
 class Normalize:
-    
     def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
         self.mean = mean
         self.std = std
 
     def __call__(self, img, target):
-    
+
         normalize = transforms.Normalize(mean=self.mean, std=self.std)
         return normalize(img), target

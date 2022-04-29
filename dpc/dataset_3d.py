@@ -19,7 +19,6 @@ def pil_loader(path):
 
 
 class RMIS(data.Dataset):
-
     def __init__(self,
                  data_path,
                  mode='train',
@@ -132,13 +131,10 @@ class RMIS(data.Dataset):
             # png files
             last_frame_png = vpath / 'raw.png'
             mask_png = vpath / 'instrument_instances.png'
-            
 
-            last_frame = cv2.imread(str(last_frame_png), cv2.IMREAD_UNCHANGED)
+            last_frame = Image.open(str(last_frame_png))
 
-            H, W, C = last_frame.shape
-            
-            mask = np.zeros(shape=(H, W), dtype=np.uint8)
+            W, H = last_frame.size
 
             # chekc if mask exists
             if mask_png.exists():
@@ -149,13 +145,16 @@ class RMIS(data.Dataset):
             else:
                 # empty mask
                 mask = np.zeros(shape=(H, W), dtype=np.uint8)
-               # print("empty")
+
+            # mask is now a PIL image
+            mask = Image.fromarray(np.uint8(mask * 255), 'L')
             # apply last_frame_transforms
+
             if self.last_frame_transforms:
-               # print("imgage:", type(last_frame))
-               # print("before:",mask.shape)
+                # print("imgage:", type(last_frame))
+                # print("before:",mask.shape)
                 last_frame, mask = self.last_frame_transforms(last_frame, mask)
-               # print("after:",mask.shape)
+            # print("after:",mask.shape)
 
             data.extend([last_frame, mask])
 
