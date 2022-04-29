@@ -40,7 +40,8 @@ class DecoderBlock(nn.Module):
                  in_channels,
                  middle_channels,
                  out_channels,
-                 is_deconv=True):
+                 is_deconv=True,
+                 output_padding=0):
         super(DecoderBlock, self).__init__()
         self.in_channels = in_channels
 
@@ -51,7 +52,9 @@ class DecoderBlock(nn.Module):
                                    out_channels,
                                    kernel_size=4,
                                    stride=2,
-                                   padding=1), nn.ReLU(inplace=True))
+                                   padding=1,
+                                   output_padding=output_padding),
+                nn.ReLU(inplace=True))
         else:
             self.block = nn.Sequential(
                 nn.Upsample(scale_factor=2, mode='bilinear'),
@@ -105,27 +108,39 @@ class UNet11(nn.Module):
             self.relu,
         )
 
-        self.center = DecoderBlock(256 + num_filters * 8,
-                                   num_filters * 8 * 2,
-                                   num_filters * 8,
-                                   is_deconv=True)
-        self.dec5 = DecoderBlock(512 + num_filters * 8,
-                                 num_filters * 8 * 2,
-                                 num_filters * 8,
-                                 is_deconv=True)
+        self.center = DecoderBlock(
+            256 + num_filters * 8,
+            num_filters * 8 * 2,
+            num_filters * 8,
+            is_deconv=True,
+            output_padding=1,
+        )
+        self.dec5 = DecoderBlock(
+            512 + num_filters * 8,
+            num_filters * 8 * 2,
+            num_filters * 8,
+            is_deconv=True,
+            output_padding=1,
+        )
         self.dec4 = DecoderBlock(512 + num_filters * 8,
                                  num_filters * 8 * 2,
                                  num_filters * 4,
-                                 is_deconv=True)
+                                 is_deconv=True,
+                                 output_padding=1)
         self.dec3 = DecoderBlock(256 + num_filters * 4,
                                  num_filters * 4 * 2,
                                  num_filters * 2,
                                  is_deconv=True)
-        self.dec2 = DecoderBlock(128 + num_filters * 2,
-                                 num_filters * 2 * 2,
-                                 num_filters,
-                                 is_deconv=True)
-        self.dec1 = ConvRelu(64 + num_filters, num_filters)
+        self.dec2 = DecoderBlock(
+            128 + num_filters * 2,
+            num_filters * 2 * 2,
+            num_filters,
+            is_deconv=True,
+        )
+        self.dec1 = ConvRelu(
+            64 + num_filters,
+            num_filters,
+        )
 
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
         self.sigmoid = nn.Sigmoid()
@@ -154,7 +169,6 @@ class UNet11(nn.Module):
 
 if __name__ == "__main__":
     m = UNet11(num_classes=1, pretrained=False)
-    # x = torch.randn(1, 3, 512, 512)
     x = torch.randn(1, 3, 540, 540)
 
     __import__('ipdb').set_trace()
