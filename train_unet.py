@@ -1,31 +1,24 @@
-from UNET.unet11 import UNet11
-from UNET import transform as T
-import UNET.train_unet as ut
-from UNET.loss import DICE_Loss
-from dpc.dataset_3d import RMIS
-from main import set_path
-from dpc import save_checkpoint
-from dpc.utils import denorm
-from dpc.backbone.resnet_2d3d import neq_load_customized
+from unet import iou_score_image
+from unet import dice_score_image
+from unet import UNet11
+from unet import DICE_Loss, T
 
-import torchvision.transforms as transforms
+from dataset import get_data
+
+from dpc import save_checkpoint
 
 import os
 import re
-import time
 import argparse
+
 import numpy as np
 
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
-from tqdm import tqdm
-
 import torch
-import torch.nn as nn
 import torch.optim as optim
-from torch.utils import data
-import torchvision.utils as vutils
+import utils as utils
 
 plt.switch_backend('agg')
 
@@ -84,21 +77,24 @@ parser.add_argument('--train_what', default='all', type=str)
 parser.add_argument('--img_dim', default=128, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
 
+
 def main():
     args = parser.parse_args()
     cuda = torch.device('cuda')
-    
+
     model = UNet11(args.num_classes)
     model.to(cuda)
-    
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd)
+
+    optimizer = optim.Adam(model.parameters(),
+                           lr=args.lr,
+                           weight_decay=args.wd)
     criterion = DICE_Loss()
     args.old_lr = None
-    
+
     best_dice = 0
     global iteration
     iteration = 0
-    
+
     if args.resume:
         if os.path.isfile(args.resume):
             args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
@@ -111,7 +107,7 @@ def main():
             model.load_state_dict(checkpoint['state_dict'])
             if not args.reset_lr:  # if didn't reset lr, load old optimizer
                 optimizer.load_state_dict(checkpoint['optimizer'])
-            else: 
+            else:
                 print('==== Change lr from %f to %f ====' %
                       (args.old_lr, args.lr))
             print("=> loaded resumed checkpoint '{}' (epoch {})".format(
@@ -125,7 +121,7 @@ def main():
                 args.pretrain))
             checkpoint = torch.load(args.pretrain,
                                     map_location=torch.device('cpu'))
-            model = neq_load_customized(model, checkpoint['state_dict'])
+            model = utils.neq_load_customized(model, checkpoint['state_dict'])
             print("=> loaded pretrained checkpoint '{}' (epoch {})".format(
                 args.pretrain, checkpoint['epoch']))
         else:
@@ -133,47 +129,41 @@ def main():
 
     if args.dataset == 'rmis':
         transform = T.Compose([
-           # T.Resize(),
-           # T.ToTensor(),
-           # T.Resize(),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
-            T.RandomGray(consistent=False, p=0.5),
-            T.ColorJitter(brightness=0.5,
-                        contrast=0.5,
-                        saturation=0.5,
-                        hue=0.25,
-                        p=1.0),
+            # T.RandomHorizontalFlip(),
+            # T.RandomVerticalFlip(),
+            # T.RandomGray(consistent=False, p=0.5),
+            # T.ColorJitter(brightness=0.5,
+            #               contrast=0.5,
+            #               saturation=0.5,
+            #               hue=0.25,
+            #               p=1.0),
             T.Resize(),
             T.ToTensor(),
             T.Normalize()
         ])
 
-    # args.data_path = '/mnt/disks/rmis_train/'
-    
     # get training and val data
     train_loader = get_data(transform, args, 'train')
     val_loader = get_data(transform, args, 'val')
 
     print("loader:", len(train_loader))
 
-
     # de_noramalize = denorm()
-    img_path, model_path = set_path(args)
-    
+    img_path, model_path = utils.set_path(args)
+
     writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))
     writer_val = SummaryWriter(logdir=os.path.join(img_path, 'val'))
-    
+
     # start training
     for epoch in range(args.start_epoch, args.epochs):
         print('\nEpoch {:d}\n'.format(epoch))
 
-        train_loss, train_dice, train_iou, iteration = ut.train(
-            train_loader, model, criterion, optimizer,
-            writer_train, iteration, cuda)
-        
-        val_loss, val_dice, val_iou = ut.validate(
-            val_loader, model, criterion, writer_val, cuda)
+        train_loss, train_dice, train_iou, iteration = train(
+            train_loader, model, criterion, optimizer, writer_train, iteration,
+            cuda)
+
+        val_loss, val_dice, val_iou = validate(val_loader, model, criterion,
+                                               writer_val, cuda)
 
         # save curve
         writer_train.add_scalar('global/loss', train_loss, epoch)
@@ -201,42 +191,162 @@ def main():
             keep_all=False)
 
     print('Training from ep %d to ep %d finished' %
-        (args.start_epoch, args.epochs))
+          (args.start_epoch, args.epochs))
 
 
+# test
+def test(test_dataloader, model, loss_fn, cuda):
+    test_batches = len(test_dataloader)
+    test_loss, test_IOU, test_dice = 0, 0, 0
 
-def get_data(
-    transform,
-    args,
-    mode='train',
-):
-    print('Loading data for "%s" ...' % mode)
-    if args.dataset == 'rmis':
-        dataset = RMIS(
-            mode=mode,
-            data_path=args.data_path,
-            last_frame_transforms=transform,
-            seq_len=args.seq_len,
-            num_seq=args.num_seq,
-            downsample=args.ds,
-            return_video = False,
-            return_last_frame=True
-        )
-    else:
-        raise ValueError('dataset not supported')
+    model.eval()
+    with torch.no_grad():
+        for inputs, labels in enumerate(test_dataloader):
+            # get inputs and labels
 
-    sampler = data.RandomSampler(dataset)
+            inputs = inputs.to(cuda)
+            labels = labels.to(cuda)
 
-    data_loader = data.DataLoader(dataset,
-                                  batch_size=args.batch_size,
-                                  sampler=sampler,
-                                  shuffle=False,
-                                  num_workers=32,
-                                  pin_memory=True,
-                                  drop_last=True)
+            # compute predictions and loss
+            pred = model(inputs)
+            loss = loss_fn(pred, labels)
 
-    print('"%s" dataset size: %d' % (mode, len(dataset)))
-    return data_loader
+            test_loss += loss.item()
+
+            # evaluate the model over validation
+            test_IOU += iou_score_image(pred, labels)
+            test_dice += dice_score_image(pred, labels)
+
+        # per batch avg dice & iou
+        test_IOU = test_IOU / test_batches
+        test_dice = test_dice / test_batches
+        test_loss = test_loss / test_batches
+
+        print("Test Loss: ", test_loss)
+        print("Test DICE score: ", test_dice)
+        print("Test IoU score: ", test_IOU)
+
+        np.savetxt("Test_Metrics.csv", [test_IOU, test_dice, test_loss],
+                   delimiter=", ",
+                   fmt='%1.9f')
+
+        return test_loss, test_dice, test_IOU
+
+
+def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration,
+          cuda):
+    train_batches = len(train_dataloader)
+    total_loss = []
+    total_dice = []
+    total_iou = []
+
+    train_loss, train_IOU, train_dice = 0, 0, 0
+
+    # train the model
+    model.train()
+    for i, data in enumerate(train_dataloader):
+        # get inputs and labels
+
+        model.train()
+
+        inputs, labels = data
+
+        # print(inputs.shape)
+        # print(type(inputs))
+        # print('\n')
+        # print(labels.shape)
+        # print(type(labels))
+
+        inputs = inputs.to(cuda)
+        labels = labels.to(cuda)
+
+        # compute predictions and loss
+        pred = model(inputs).squeeze(1)
+
+        # print("pred minimum val: ", torch.min(pred))
+        # print("pred max val: ", torch.min(pred))
+        # print("preds: ", pred)
+        # print("target:", labels)
+
+        loss = loss_fn(pred, labels)
+
+        # epoch train loss
+        train_loss += loss.item()
+
+        # backward
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        # evaluate the model over training
+        train_IOU += iou_score_image(pred, labels)
+        train_dice += dice_score_image(pred, labels)
+
+        if i % 5 == 0:
+            train_writer.add_scalar('local/loss', train_loss, iteration)
+            train_writer.add_scalar('local/dice', train_dice, iteration)
+            train_writer.add_scalar('local/iou', train_IOU, iteration)
+            iteration += 1
+
+    # per batch avg dice & iou
+    train_IOU = train_IOU / train_batches
+    train_dice = train_dice / train_batches
+    train_loss = train_loss / train_batches
+
+    print("Train Loss: {:.3f} ".format(train_loss))
+    print("Train DICE score: {:.3f}".format(train_dice))
+    print("Train IoU score: {:.3f}\n".format(train_IOU))
+
+    total_loss.append(train_loss)
+    total_dice.append(train_dice)
+    total_iou.append(train_IOU)
+
+    return train_loss, train_dice, train_IOU, iteration
+
+
+def validate(val_dataloader, model, loss_fn, val_writer, cuda):
+    val_batches = len(val_dataloader)
+    total_loss = []
+    total_dice = []
+    total_iou = []
+
+    val_loss, val_IOU, val_dice = 0, 0, 0
+
+    # evaluate the model
+    model.eval()
+    with torch.no_grad():
+
+        for i, inputs, labels in enumerate(val_dataloader, 0):
+
+            inputs = inputs.to(cuda)
+            labels = labels.to(cuda)
+
+            # compute predictions and loss
+            pred = model(inputs).squeeze(1)
+            loss = loss_fn(pred, labels)
+
+            # epoch val loss
+            val_loss += loss.item()
+
+            # evaluate the model over validation
+            val_IOU += iou_score_image(pred, labels)
+            val_dice += dice_score_image(pred, labels)
+
+    # per batch avg dice & iou
+    val_IOU = val_IOU / val_batches
+    val_dice = val_dice / val_batches
+    val_loss = val_loss / val_batches
+
+    print("Validation loss: {:.3f}".format(val_loss))
+    print("Validation dice: {:.3f}".format(val_dice))
+    print("Validation iou: {:.3f}\n".format(val_IOU))
+
+    total_loss.append(val_loss)
+    total_dice.append(val_dice)
+    total_iou.append(val_IOU)
+
+    return val_loss, val_dice, val_IOU
+
 
 if __name__ == '__main__':
     main()

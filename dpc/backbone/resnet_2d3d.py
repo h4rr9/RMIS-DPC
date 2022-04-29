@@ -403,31 +403,6 @@ def resnet200_2d3d_full(**kwargs):
     return model
 
 
-def neq_load_customized(model, pretrained_dict):
-    ''' load pre-trained model in a not-equal way,
-    when new model has been partially modified '''
-    model_dict = model.state_dict()
-    tmp = {}
-    print('\n=======Check Weights Loading======')
-    print('Weights not used from pretrained file:')
-    for k, v in pretrained_dict.items():
-        if k in model_dict:
-            tmp[k] = v
-        else:
-            print(k)
-    print('---------------------------')
-    print('Weights not loaded into new model:')
-    for k, v in model_dict.items():
-        if k not in pretrained_dict:
-            print(k)
-    print('===================================\n')
-    del pretrained_dict
-    model_dict.update(tmp)
-    del tmp
-    model.load_state_dict(model_dict)
-    return model
-
-
 if __name__ == '__main__':
     m = resnet18_2d3d_full()
     x = torch.FloatTensor(4, 3, 16, 128, 128)

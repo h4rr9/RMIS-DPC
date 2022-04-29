@@ -9,7 +9,7 @@ import zipfile
 import torch
 import io
 
-from .utils import ToTensor
+from dpc import ToTensor
 
 
 def pil_loader(path):
@@ -19,6 +19,7 @@ def pil_loader(path):
 
 
 class RMIS(data.Dataset):
+
     def __init__(self,
                  data_path,
                  mode='train',
@@ -165,6 +166,38 @@ class RMIS(data.Dataset):
 
     def __len__(self):
         return len(self.video_paths)
+
+
+def get_data(
+    transform,
+    args,
+    mode='train',
+):
+    print('Loading data for "%s" ...' % mode)
+    if args.dataset == 'rmis':
+        dataset = RMIS(
+            mode=mode,
+            data_path=args.data_path,
+            video_transforms=transform,
+            seq_len=args.seq_len,
+            num_seq=args.num_seq,
+            downsample=args.ds,
+        )
+    else:
+        raise ValueError('dataset not supported')
+
+    sampler = data.RandomSampler(dataset)
+
+    data_loader = data.DataLoader(dataset,
+                                  batch_size=args.batch_size,
+                                  sampler=sampler,
+                                  shuffle=False,
+                                  num_workers=32,
+                                  pin_memory=True,
+                                  drop_last=True)
+
+    print('"%s" dataset size: %d' % (mode, len(dataset)))
+    return data_loader
 
 
 if __name__ == "__main__":

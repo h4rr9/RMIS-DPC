@@ -12,11 +12,13 @@ import torch
 from torchvision import models
 from torch.nn import functional as F
 
+
 def conv3x3(in_, out):
     return nn.Conv2d(in_, out, 3, padding=1)
 
 
 class ConvRelu(nn.Module):
+
     def __init__(self, in_: int, out: int):
         super(ConvRelu, self).__init__()
         self.conv = conv3x3(in_, out)
@@ -34,17 +36,22 @@ class DecoderBlock(nn.Module):
     link https://distill.pub/2016/deconv-checkerboard/
     """
 
-    def __init__(self, in_channels, middle_channels, out_channels, is_deconv=True):
+    def __init__(self,
+                 in_channels,
+                 middle_channels,
+                 out_channels,
+                 is_deconv=True):
         super(DecoderBlock, self).__init__()
         self.in_channels = in_channels
 
         if is_deconv:
             self.block = nn.Sequential(
                 ConvRelu(in_channels, middle_channels),
-                nn.ConvTranspose2d(middle_channels, out_channels, kernel_size=4, stride=2,
-                                   padding=1),
-                nn.ReLU(inplace=True)
-            )
+                nn.ConvTranspose2d(middle_channels,
+                                   out_channels,
+                                   kernel_size=4,
+                                   stride=2,
+                                   padding=1), nn.ReLU(inplace=True))
         else:
             self.block = nn.Sequential(
                 nn.Upsample(scale_factor=2, mode='bilinear'),
@@ -57,6 +64,7 @@ class DecoderBlock(nn.Module):
 
 
 class UNet11(nn.Module):
+
     def __init__(self, num_classes=1, num_filters=32, pretrained=False):
         """
         :param num_classes:
@@ -73,11 +81,9 @@ class UNet11(nn.Module):
         self.encoder = models.vgg11(pretrained=pretrained).features
 
         self.relu = nn.ReLU(inplace=True)
-        self.conv1 = nn.Sequential(self.encoder[0],
-                                   self.relu)
+        self.conv1 = nn.Sequential(self.encoder[0], self.relu)
 
-        self.conv2 = nn.Sequential(self.encoder[3],
-                                   self.relu)
+        self.conv2 = nn.Sequential(self.encoder[3], self.relu)
 
         self.conv3 = nn.Sequential(
             self.encoder[6],
@@ -99,11 +105,26 @@ class UNet11(nn.Module):
             self.relu,
         )
 
-        self.center = DecoderBlock(256 + num_filters * 8, num_filters * 8 * 2, num_filters * 8, is_deconv=True)
-        self.dec5 = DecoderBlock(512 + num_filters * 8, num_filters * 8 * 2, num_filters * 8, is_deconv=True)
-        self.dec4 = DecoderBlock(512 + num_filters * 8, num_filters * 8 * 2, num_filters * 4, is_deconv=True)
-        self.dec3 = DecoderBlock(256 + num_filters * 4, num_filters * 4 * 2, num_filters * 2, is_deconv=True)
-        self.dec2 = DecoderBlock(128 + num_filters * 2, num_filters * 2 * 2, num_filters, is_deconv=True)
+        self.center = DecoderBlock(256 + num_filters * 8,
+                                   num_filters * 8 * 2,
+                                   num_filters * 8,
+                                   is_deconv=True)
+        self.dec5 = DecoderBlock(512 + num_filters * 8,
+                                 num_filters * 8 * 2,
+                                 num_filters * 8,
+                                 is_deconv=True)
+        self.dec4 = DecoderBlock(512 + num_filters * 8,
+                                 num_filters * 8 * 2,
+                                 num_filters * 4,
+                                 is_deconv=True)
+        self.dec3 = DecoderBlock(256 + num_filters * 4,
+                                 num_filters * 4 * 2,
+                                 num_filters * 2,
+                                 is_deconv=True)
+        self.dec2 = DecoderBlock(128 + num_filters * 2,
+                                 num_filters * 2 * 2,
+                                 num_filters,
+                                 is_deconv=True)
         self.dec1 = ConvRelu(64 + num_filters, num_filters)
 
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
@@ -117,6 +138,8 @@ class UNet11(nn.Module):
         conv5 = self.conv5(self.pool(conv4))
         center = self.center(self.pool(conv5))
 
+        print(conv5.shape, center.shape)
+
         dec5 = self.dec5(torch.cat([center, conv5], 1))
         dec4 = self.dec4(torch.cat([dec5, conv4], 1))
         dec3 = self.dec3(torch.cat([dec4, conv3], 1))
@@ -129,3 +152,13 @@ class UNet11(nn.Module):
             x_out = self.sigmoid(self.final(dec1))
 
         return x_out
+
+
+if __name__ == "__main__":
+    m = UNet11(num_classes=1, pretrained=False)
+    x = torch.randn(1, 3, 520, 960)
+
+    __import__('ipdb').set_trace()
+
+    y = m(x)
+    print(y.shape)

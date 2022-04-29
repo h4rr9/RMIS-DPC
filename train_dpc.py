@@ -2,9 +2,11 @@
 
 from dpc import save_checkpoint, denorm, calc_topk_accuracy
 from dpc import neq_load_customized
-from dpc import RMIS, DPC_RNN, AverageMeter
+from dpc import DPC_RNN, AverageMeter
 from dpc import ToTensor, Normalize
 from dpc import RandomSizedCrop, RandomHorizontalFlip, RandomGray, ColorJitter
+
+from dataset import get_data
 
 import torchvision.transforms as transforms
 
@@ -14,7 +16,7 @@ import time
 import argparse
 import numpy as np
 
-from tensorboardX import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
@@ -22,8 +24,9 @@ from tqdm import tqdm
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils import data
 import torchvision.utils as vutils
+
+from utils import utils
 
 plt.switch_backend('agg')
 
@@ -171,7 +174,7 @@ def main():
     val_loader = get_data(transform, args, 'val')
 
     de_noramalize = denorm()
-    img_path, model_path = set_path(args)
+    img_path, model_path = utils.set_path(args)
 
     writer_train = SummaryWriter(logdir=os.path.join(img_path, 'train'))
     writer_val = SummaryWriter(logdir=os.path.join(img_path, 'val'))
@@ -346,57 +349,6 @@ def validate(data_loader, model, criterion, epoch, args, device):
     return losses.local_avg, accuracy.local_avg, [
         i.local_avg for i in accuracy_list
     ]
-
-
-def get_data(
-    transform,
-    args,
-    mode='train',
-):
-    print('Loading data for "%s" ...' % mode)
-    if args.dataset == 'rmis':
-        dataset = RMIS(
-            mode=mode,
-            data_path=args.data_path,
-            video_transforms=transform,
-            seq_len=args.seq_len,
-            num_seq=args.num_seq,
-            downsample=args.ds,
-        )
-    else:
-        raise ValueError('dataset not supported')
-
-    sampler = data.RandomSampler(dataset)
-
-    data_loader = data.DataLoader(dataset,
-                                  batch_size=args.batch_size,
-                                  sampler=sampler,
-                                  shuffle=False,
-                                  num_workers=32,
-                                  pin_memory=True,
-                                  drop_last=True)
-
-    print('"%s" dataset size: %d' % (mode, len(dataset)))
-    return data_loader
-
-
-def set_path(args):
-    if args.resume:
-        exp_path = os.path.dirname(os.path.dirname(args.resume))
-    else:
-        exp_path = 'log_{args.prefix}/{args.dataset}-{args.img_dim}_{0}_{args.model}_bs{args.batch_size}_lr{1}_seq{args.num_seq}_pred{args.pred_step}_len{args.seq_len}_ds{args.ds}_train-{args.train_what}{2}'.format(
-            'r%s' % args.net[6::],
-            args.old_lr if args.old_lr is not None else args.lr,
-            '_pt=%s' %
-            args.pretrain.replace('/', '-') if args.pretrain else '',
-            args=args)
-    img_path = os.path.join(exp_path, 'img')
-    model_path = os.path.join(exp_path, 'model')
-    if not os.path.exists(img_path):
-        os.makedirs(img_path)
-    if not os.path.exists(model_path):
-        os.makedirs(model_path)
-    return img_path, model_path
 
 
 if __name__ == '__main__':
