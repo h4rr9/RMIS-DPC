@@ -180,8 +180,6 @@ class ColorJitter(object):
                 "{} should be a single number or a list/tuple with lenght 2.".
                 format(name))
 
-        # if value is 0 or (1., 1.) for brightness/contrast/saturation
-        # or (0., 0.) for hue, do nothing
         if value[0] == value[1] == center:
             value = None
         return value
