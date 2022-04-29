@@ -22,6 +22,8 @@ import torch
 import torch.optim as optim
 from utils import utils
 
+from tqdm import tqdm
+
 plt.switch_backend('agg')
 
 torch.backends.cudnn.benchmark = True
@@ -255,7 +257,8 @@ def train(train_dataloader, model, loss_fn, optimizer, train_writer, iteration,
 
     # train the model
     model.train()
-    for i, data in enumerate(train_dataloader):
+    for i, data in tqdm(enumerate(train_dataloader)):
+
         # get inputs and labels
 
         model.train()
@@ -327,7 +330,7 @@ def validate(val_dataloader, model, loss_fn, val_writer, cuda):
     model.eval()
     with torch.no_grad():
 
-        for i, inputs, labels in enumerate(val_dataloader, 0):
+        for i, inputs, labels in tqdm(enumerate(val_dataloader, 0)):
 
             inputs = inputs.to(cuda)
             labels = labels.to(cuda)
