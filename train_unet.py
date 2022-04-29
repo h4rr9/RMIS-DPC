@@ -139,14 +139,14 @@ def main():
     if args.dataset == 'rmis':
         transform = T.Compose([
             T.RandomSplit(),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
+            # T.RandomHorizontalFlip(),
+            # T.RandomVerticalFlip(),
             # T.RandomGray(consistent=False, p=0.5),
-            T.ColorJitter(brightness=0.5,
-                          contrast=0.5,
-                          saturation=0.5,
-                          hue=0.25,
-                          p=1.0),
+            # T.ColorJitter(brightness=0.5,
+            #               contrast=0.5,
+            #               saturation=0.5,
+            #               hue=0.25,
+            #               p=1.0),
             T.ToTensor(),
         ])
 
@@ -178,7 +178,7 @@ def main():
 
         train_loss, train_dice, train_iou, iteration = train(
             train_loader, model, criterion, optimizer, epoch, writer_train,
-            iteration, cuda)
+            cuda)
 
         val_loss, val_dice, val_iou = validate(val_loader, model, criterion,
                                                epoch, writer_val, cuda)
@@ -251,16 +251,15 @@ def test(test_dataloader, model, loss_fn, cuda):
         return test_loss, test_dice, test_IOU
 
 
-def train(data_loader, model, loss_fn, optimizer, epoch, train_writer,
-          iteration, cuda):
+def train(data_loader, model, loss_fn, optimizer, epoch, train_writer, cuda):
     losses = AverageMeter()
     dices = AverageMeter()
     ious = AverageMeter()
+    # train the model
+    model.train()
 
     global iteration
 
-    # train the model
-    model.train()
     for idx, (inputs, labels) in tqdm(enumerate(data_loader)):
         tic = time.time()
 
