@@ -28,8 +28,10 @@ class Resize:
 
     def __call__(self, img, target):
 
-        return F.resize(img, (540, 540)), F.resize(target, (540, 540),
-                                                   F.InterpolationMode.NEAREST)
+        W, H = img.size
+
+        return F.resize(img, (H, H)), F.resize(target, (H, H),
+                                               F.InterpolationMode.NEAREST)
 
 
 class RandomSplit:
