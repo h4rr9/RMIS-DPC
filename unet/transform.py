@@ -257,6 +257,8 @@ class RandomGray:
 
         if random.random() < self.p:
             return self.grayscale(img), target
+        else:
+            return img, target
 
     def grayscale(self, img):
         channel = np.random.choice(3)
