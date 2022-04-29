@@ -196,7 +196,7 @@ def get_data(
                                   batch_size=args.batch_size,
                                   sampler=sampler,
                                   shuffle=False,
-                                  num_workers=32,
+                                  num_workers=2,
                                   pin_memory=True,
                                   drop_last=True)
 
