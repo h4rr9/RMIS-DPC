@@ -156,7 +156,7 @@ class UNet11(nn.Module):
 
 if __name__ == "__main__":
     m = UNet11(num_classes=1, pretrained=False)
-    x = torch.randn(1, 3, 520, 960)
+    x = torch.randn(1, 3, 512, 512)
 
     __import__('ipdb').set_trace()
 

@@ -1,5 +1,4 @@
 # based on https://github.com/pytorch/vision/blob/main/references/segmentation/transforms.py
-import math
 import numbers
 import random
 import numpy as np
@@ -13,6 +12,7 @@ import torchvision.transforms.functional as F
 
 
 class ToTensor:
+
     def __init__(self):
         pass
 
@@ -22,17 +22,19 @@ class ToTensor:
 
 
 class Resize:
+
     def __init__(self):
         pass
 
     def __call__(self, img, target):
-        #print("resize")
+        # print("resize")
         # print(type(img), type(target))
         return F.resize(img, (128, 128)), F.resize(target, (128, 128),
                                                    F.InterpolationMode.NEAREST)
 
 
 class RandomVerticalFlip:
+
     def __init__(self, prob=0.5):
         self.prob = prob
         self.degree = 180
@@ -47,6 +49,7 @@ class RandomVerticalFlip:
 
 
 class RandomHorizontalFlip:
+
     def __init__(self, prob=0.5):
         self.prob = prob
 
@@ -60,6 +63,7 @@ class RandomHorizontalFlip:
 
 
 class Rotate:
+
     def __init__(self, prob=0.5):
         self.prob = prob
         self.degree = 15
@@ -79,6 +83,7 @@ class Rotate:
 
 
 class Compose:
+
     def __init__(self, transforms):
         self.transforms = transforms
 
@@ -92,21 +97,27 @@ class Compose:
 
 
 class ColorJitter(object):
-    """Randomly change the brightness, contrast and saturation of an image. --modified from pytorch source code
+    """Randomly change the brightness, contrast and saturation of an image.
+    --modified from pytorch source code
     Args:
-        brightness (float or tuple of float (min, max)): How much to jitter brightness.
-            brightness_factor is chosen uniformly from [max(0, 1 - brightness), 1 + brightness]
-            or the given [min, max]. Should be non negative numbers.
-        contrast (float or tuple of float (min, max)): How much to jitter contrast.
-            contrast_factor is chosen uniformly from [max(0, 1 - contrast), 1 + contrast]
-            or the given [min, max]. Should be non negative numbers.
-        saturation (float or tuple of float (min, max)): How much to jitter saturation.
-            saturation_factor is chosen uniformly from [max(0, 1 - saturation), 1 + saturation]
-            or the given [min, max]. Should be non negative numbers.
+        brightness (float or tuple of float (min, max)): How much to jitter
+        brightness.
+        brightness_factor is chosen uniformly from
+        [max(0, 1 - brightness), 1 + brightness]
+        or the given [min, max]. Should be non negative numbers.
+        contrast (float or tuple of float (min, max)): How much to jitter
+        contrast. contrast_factor is chosen uniformly from
+        [max(0, 1 - contrast), 1 + contrast] or the given [min, max].
+        Should be non negative numbers.
+        saturation (float or tuple of float (min, max)): How much to jitter
+        saturation. saturation_factor is chosen uniformly from
+        [max(0, 1 - saturation), 1 + saturation] or the given [min, max].
+        Should be non negative numbers.
         hue (float or tuple of float (min, max)): How much to jitter hue.
-            hue_factor is chosen uniformly from [-hue, hue] or the given [min, max].
-            Should have 0<= hue <= 0.5 or -0.5 <= min <= max <= 0.5.
+            hue_factor is chosen uniformly from [-hue, hue] or the given
+           [min, max]. Should have 0<= hue <= 0.5 or -0.5 <= min <= max <= 0.5.
     """
+
     def __init__(self,
                  brightness=0,
                  contrast=0,
@@ -220,6 +231,7 @@ class ColorJitter(object):
 
 class RandomGray:
     '''Actually it is a channel splitting, not strictly grayscale images'''
+
     def __init__(self, consistent=True, p=0.5):
         self.consistent = consistent
         self.p = p  # probability to apply grayscale
@@ -245,6 +257,7 @@ class RandomGray:
 
 
 class Normalize:
+
     def __init__(self, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
         self.mean = mean
         self.std = std
