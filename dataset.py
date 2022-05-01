@@ -11,11 +11,13 @@ import io
 
 from dpc import ToTensor
 
+VIDEO_LENGTH = 250
+
 
 def zip_test(zip_file):
     try:
         z = zipfile.ZipFile(zip_file)
-        return z.infolist() is not None
+        return z.infolist() is not None and len(z.infolist()) == VIDEO_LENGTH
     except zipfile.BadZipfile:
         return False
 
@@ -41,7 +43,7 @@ class RMIS(data.Dataset):
         self.return_last_frame = return_last_frame
         self.last_frame_transforms = last_frame_transforms
         self.video_transforms = video_transforms
-        self.vlen = 250
+        self.vlen = VIDEO_LENGTH
 
         assert self.return_last_frame or self.return_video, "dataset has to return something"
         assert self.vlen >= self.seq_len * self.num_seq * self.downsample, "Cannot sample frames! invalid sampling parameters"

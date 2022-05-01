@@ -58,7 +58,8 @@ def main():
     # load the saved weights
     if os.path.isfile(args.load_weights):
         args.old_lr = float(re.search('_lr(.+?)_', args.load_weights).group(1))
-        print("=> loading resumed checkpoint '{}'".format(args.load_weights))
+        print("=> loading weights of trained model '{}'".format(
+            args.load_weights))
         checkpoint = torch.load(args.load_weights,
                                 map_location=torch.device('cpu'))
         # args.start_epoch = checkpoint['epoch']
@@ -90,10 +91,17 @@ def main():
             inputs = inputs.to(cuda)
             labels = labels.to(cuda).squeeze(1)
 
-            B, _, _ = labels.shape
+            B, H, W = labels.shape
 
             # compute predictions and loss
-            pred = model(inputs).squeeze(1)
+            inputsLeft = inputs[..., :H]
+            inputsRight = inputs[..., W - H:W]
+
+            predLeft = model(inputsLeft).squeeze(1)
+            predRight = model(inputsRight).squeeze(1)
+
+            pred = utils.create_full_mask(predLeft, predRight)
+
             loss = criterion(pred, labels)
 
             # epoch val loss
