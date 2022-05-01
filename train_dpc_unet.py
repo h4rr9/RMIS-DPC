@@ -91,13 +91,13 @@ parser.add_argument('--img_dim', default=128, type=int)
 parser.add_argument('--feature_dim', default=33, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
 
-parser.add_argument('--inital_dpc_weights',
+parser.add_argument('--initial_dpc_weights',
                     default='',
                     type=str,
                     required=True,
                     help='path of dpc model weights to initalize')
 
-parser.add_argument('--inital_unet_weights',
+parser.add_argument('--initial_unet_weights',
                     default='',
                     type=str,
                     required=True,
@@ -151,34 +151,34 @@ def main():
     global iteration
     iteration = 0
 
-    if args.inital_dpc_weights:
-        if os.path.isfile(args.inital_dpc_weights):
+    if args.initial_dpc_weights:
+        if os.path.isfile(args.initial_dpc_weights):
             print("=> loading pretrained dpc checkpoint '{}'".format(
-                args.inital_dpc_weights))
-            checkpoint = torch.load(args.inital_dpc_weights,
+                args.initial_dpc_weights))
+            checkpoint = torch.load(args.initial_dpc_weights,
                                     map_location=torch.device('cpu'))
             dpc_model = utils.neq_load_customized(dpc_model,
                                                   checkpoint['state_dict'])
             print("=> loaded pretrained dpc checkpoint '{}' (epoch {})".format(
-                args.inital_dpc_weights, checkpoint['epoch']))
+                args.initial_dpc_weights, checkpoint['epoch']))
         else:
             print("=> no dpc checkpoint found at '{}'".format(
-                args.inital_dpc_weights))
+                args.initial_dpc_weights))
 
-    if args.inital_unet_weights:
-        if os.path.isfile(args.inital_unet_weights):
+    if args.initial_unet_weights:
+        if os.path.isfile(args.initial_unet_weights):
             print("=> loading pretrained unet checkpoint '{}'".format(
-                args.inital_unet_weights))
-            checkpoint = torch.load(args.inital_unet_weights,
+                args.initial_unet_weights))
+            checkpoint = torch.load(args.initial_unet_weights,
                                     map_location=torch.device('cpu'))
             unet_model = utils.neq_load_customized(unet_model,
                                                    checkpoint['state_dict'])
             print(
                 "=> loaded pretrained unet checkpoint '{}' (epoch {})".format(
-                    args.inital_unet_weights, checkpoint['epoch']))
+                    args.initial_unet_weights, checkpoint['epoch']))
         else:
             print("=> no checkpoint unet found at '{}'".format(
-                args.inital_unet_weights))
+                args.initial_unet_weights))
 
     if args.resume:
         if os.path.isfile(args.resume):
