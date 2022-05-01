@@ -17,8 +17,6 @@ import re
 import argparse
 import time
 
-import numpy as np
-
 from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 
@@ -50,7 +48,7 @@ parser.add_argument('--ds',
                     default=0,
                     type=int,
                     help='frame downsampling rate')
-parser.add_argument('--batch_size', default=4, type=int)
+parser.add_argument('--batch_size', default=15, type=int)
 parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--wd', default=1e-5, type=float, help='weight decay')
 parser.add_argument('--resume',

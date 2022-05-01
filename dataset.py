@@ -50,6 +50,8 @@ class RMIS(data.Dataset):
             self.data_file = self.data_path / 'data_split_train.csv'
         elif mode == 'val':
             self.data_file = self.data_path / 'data_split_val.csv'
+        elif mode == 'test':
+            self.data_file = self.data_path / 'test.csv'
         else:
             raise ValueError('Incorrect Mode')
 

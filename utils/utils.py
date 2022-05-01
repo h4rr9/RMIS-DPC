@@ -43,3 +43,20 @@ def set_path(args):
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     return img_path, model_path
+
+def create_full_mask(pred1, pred2):
+    '''Pred1 and Pred2 are 2 torch tensors (Bx540x540)
+    which will be combined to create the full mask (Bx540x960)'''
+    
+    #Tensor on the left
+    tenLeft = pred1[:,:,:420]
+    
+    #Tensor on the right
+    tenRight = pred2[:,:,120:]
+
+    #Tensor in the middle, take element-wise max of pred1, pred2
+    tenMid = torch.maximum(pred1[:,:,420:], pred2[:,:,:120])
+
+    full_mask = torch.cat((tenLeft,tenMid, tenRight),dim=2)
+
+    return full_mask
