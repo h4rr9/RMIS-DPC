@@ -153,7 +153,7 @@ class UNet11(nn.Module):
         conv5 = self.conv5(self.pool(conv4))
         center = self.center(self.pool(conv5))
 
-        if features:
+        if features is not None:
             center = (center + features) / 2
 
         print(center.shape, conv5.shape)
