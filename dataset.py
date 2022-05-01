@@ -13,8 +13,13 @@ from dpc import ToTensor
 
 
 def zip_test(zip_file):
+    # BUG: exception to handle => zipfile.BadZipFile
     z = zipfile.ZipFile(zip_file)
-    return z.testzip() and z.infolist()
+
+    try:
+        return z.infolist() is not None
+    except zipfile.BadZipfile:
+        return False
 
 
 class RMIS(data.Dataset):
