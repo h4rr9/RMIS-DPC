@@ -58,16 +58,17 @@ def main():
     # load the saved weights
     if os.path.isfile(args.load_weights):
         args.old_lr = float(re.search('_lr(.+?)_', args.load_weights).group(1))
-        print("=> loading resumed checkpoint '{}'".format(args.resume))
-        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
+        print("=> loading resumed checkpoint '{}'".format(args.load_weights))
+        checkpoint = torch.load(args.load_weights,
+                                map_location=torch.device('cpu'))
         # args.start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['state_dict'])
         # if not args.reset_lr:  # if didn't reset lr, load old optimizer
         #     optimizer.load_state_dict(checkpoint['optimizer'])
         print("=> loaded weights '{}' (epoch {})".format(
-            args.resume, checkpoint['epoch']))
+            args.load_weights, checkpoint['epoch']))
     else:
-        print("[Warning] no weights found at '{}'".format(args.resume))
+        print("[Warning] no weights found at '{}'".format(args.load_weights))
 
     test_loader = get_data(return_video=False,
                            video_transforms=None,
