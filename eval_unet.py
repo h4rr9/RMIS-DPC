@@ -57,7 +57,7 @@ def main():
 
     # load the saved weights
     if os.path.isfile(args.load_weights):
-        args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
+        args.old_lr = float(re.search('_lr(.+?)_', args.load_weights).group(1))
         print("=> loading resumed checkpoint '{}'".format(args.resume))
         checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
         # args.start_epoch = checkpoint['epoch']
@@ -113,4 +113,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
