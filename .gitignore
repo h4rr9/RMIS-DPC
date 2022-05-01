@@ -163,3 +163,6 @@ test/*
 log_tmp/*
 .python-version
 pyrightconfig.json
+unet_logs/
+dpc_logs
+unet_dpc_logs/
