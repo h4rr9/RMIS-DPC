@@ -24,6 +24,20 @@ parser.add_argument('--resume',
                     default='',
                     type=str,
                     help='path of model to resume')
+parser.add_argument('--seq_len',
+                    default=0,
+                    type=int,
+                    help='number of frames in each video block')
+parser.add_argument('--num_seq',
+                    default=0,
+                    type=int,
+                    help='number of video blocks')
+parser.add_argument('--pred_step', default=3, type=int)
+parser.add_argument('--ds',
+                    default=0,
+                    type=int,
+                    help='frame downsampling rate')
+parser.add_argument('--batch_size', default=15, type=int)
 
 def main():
     
