@@ -69,6 +69,10 @@ parser.add_argument('--start-epoch',
                     type=int,
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('--gpu', default='0', type=str)
+parser.add_argument('--pretrain',
+                    default='',
+                    type=str,
+                    help='path of pretrained model')
 parser.add_argument('--print_freq',
                     default=5,
                     type=int,
