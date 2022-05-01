@@ -2,7 +2,7 @@
 
 import math
 
-from .backbone import select_resnet, ConvGRU
+from backbone import select_resnet, ConvGRU
 
 import torch
 import torch.nn as nn
@@ -11,19 +11,19 @@ import torch.nn.functional as F
 
 class DPC(nn.Module):
 
-    def __init__(
-        self,
-        sample_size,
-        num_seq=5,
-        seq_len=5,
-        network='resnet18',
-        dropout=0.5,
-    ):
+    def __init__(self,
+                 sample_size,
+                 num_seq=5,
+                 seq_len=5,
+                 network='resnet18',
+                 dropout=0.5,
+                 upsample_size=None):
         super(DPC, self).__init__()
         torch.cuda.manual_seed(666)
         self.sample_size = sample_size
         self.num_seq = num_seq
         self.seq_len = seq_len
+        self.upsample_size = upsample_size
         print('=> Using RNN + FC model ')
 
         print('=> Use 2D-3D %s!' % network)
@@ -43,6 +43,11 @@ class DPC(nn.Module):
                            num_layers=self.param['num_layers'])
         self._initialize_weights(self.agg)
 
+        self.upsample = torch.nn.Upsample(
+            size=(self.upsample_size, self.upsample_size),
+            mode='bilinear',
+            align_corners=True) if self.upsample_size else None
+
     def forward(self, block):
         # seq1: [B, N, C, SL, W, H]
         (B, N, C, SL, H, W) = block.shape
@@ -58,7 +63,7 @@ class DPC(nn.Module):
         context, _ = self.agg(feature)
         context = context[:, -1, :].unsqueeze(1)
 
-        return context
+        return self.upsample(context) if self.upsample_size else context
 
     def _initialize_weights(self, module):
         for name, param in module.named_parameters():
