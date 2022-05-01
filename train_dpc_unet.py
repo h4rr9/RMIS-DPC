@@ -281,16 +281,6 @@ def main():
           (args.start_epoch, args.epochs))
 
 
-def process_output(mask):
-    '''task mask as input, compute the target for contrastive loss'''
-    # dot product is computed in parallel gpus, so get less easy neg, bounded by batch size in each gpu'''
-    # mask meaning: -2: omit, -1: temporal neg (hard), 0: easy neg, 1: pos, -3: spatial neg
-    (B, NP, SQ, B2, NS, _) = mask.size()  # [B, P, SQ, B, N, SQ]
-    target = mask == 1
-    target.requires_grad = False
-    return target, (B, B2, NS, NP, SQ)
-
-
 def train(data_loader, dpc_model, unet_model, de_normalize, criterion,
           optimizer, epoch, args, writer, device):
     losses = AverageMeter()
