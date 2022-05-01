@@ -1,7 +1,5 @@
 # modified from https://github.com/TengdaHan/DPC/blob/master/dpc/main.py
 
-from dpc import save_checkpoint, denorm, calc_topk_accuracy
-from dpc import neq_load_customized
 from dpc import DPC, AverageMeter
 from dpc import ToTensor, Normalize
 from dpc import RandomSizedCrop, RandomHorizontalFlip, RandomGray, ColorJitter
@@ -27,9 +25,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 import torch
-import torch.nn as nn
 import torch.optim as optim
-import torchvision.utils as vutils
 
 from utils import utils
 
