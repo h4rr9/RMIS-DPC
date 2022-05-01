@@ -69,6 +69,7 @@ parser.add_argument('--start-epoch',
                     type=int,
                     help='manual epoch number (useful on restarts)')
 parser.add_argument('--gpu', default='0', type=str)
+parser.add_argument('--pred_step', default=3, type=int)
 parser.add_argument('--pretrain',
                     default='',
                     type=str,
