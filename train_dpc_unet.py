@@ -39,7 +39,7 @@ parser.add_argument('--net', default='resnet18', type=str)
 parser.add_argument('--dpc_model', default='dpc-rnn', type=str)
 parser.add_argument('--unet_model', default='unet-11', type=str)
 parser.add_argument('--dataset', default='rmis', type=str)
-parser.add_argument('--data_path', required=True, type=str)
+parser.add_argument('--data_path', default='/mnt/disks/rmis_train', type=str)
 parser.add_argument('--seq_len',
                     default=5,
                     type=int,
@@ -83,6 +83,7 @@ parser.add_argument('--train_what', default='all', type=str)
 
 parser.add_argument('--img_dim', default=128, type=int)
 parser.add_argument('--feature_dim', default=33, type=int)
+parser.add_argument('--num_classes', default=1, type=int)
 
 
 def main():
