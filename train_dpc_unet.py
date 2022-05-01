@@ -3,6 +3,7 @@
 from dpc import DPC, AverageMeter
 from dpc import ToTensor, Normalize
 from dpc import RandomSizedCrop, RandomHorizontalFlip, RandomGray, ColorJitter
+from dpc import save_checkpoint, denorm
 
 from unet import UNet11
 from unet import iou_dice_score_image
@@ -90,6 +91,9 @@ def main():
 
     args = parser.parse_args()
     cuda = torch.device('cuda')
+
+    # needed for set_path
+    args.model = f"{args.dpc_model}-{args.unet_model}"
 
     if args.dpc_model == 'dpc-rnn':
         dpc_model = DPC(sample_size=args.img_dim,
