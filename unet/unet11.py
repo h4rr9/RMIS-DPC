@@ -156,8 +156,6 @@ class UNet11(nn.Module):
         if features is not None:
             center = (center + features) / 2
 
-        print(center.shape, conv5.shape)
-
         dec5 = self.dec5(torch.cat([center, conv5], 1))
         dec4 = self.dec4(torch.cat([dec5, conv4], 1))
         dec3 = self.dec3(torch.cat([dec4, conv3], 1))
