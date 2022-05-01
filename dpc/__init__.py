@@ -1,4 +1,5 @@
 from .model_3d import DPC_RNN
+from .model_3d_eval import DPC
 
 from .utils import AverageMeter
 from .utils import save_checkpoint

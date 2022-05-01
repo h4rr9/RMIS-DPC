@@ -13,8 +13,6 @@ from dpc import ToTensor
 
 
 def zip_test(zip_file):
-    # BUG: exception to handle => zipfile.BadZipFile
-
     try:
         z = zipfile.ZipFile(zip_file)
         return z.infolist() is not None
@@ -69,11 +67,15 @@ class RMIS(data.Dataset):
 
         print(f'Read {len(self.video_paths)} lines from {self.data_file}')
 
-    def idx_sampler(self):
+    def idx_sampler(self, sample_last=False):
 
         # sample starting index
-        start_idx = np.random.randint(self.vlen - self.num_seq * self.seq_len *
-                                      self.downsample)
+        if sample_last:
+            start_idx = self.vlen - self.num_seq * self.seq_len * self.downsample - 1
+        else:
+
+            start_idx = np.random.randint(self.vlen - self.num_seq *
+                                          self.seq_len * self.downsample)
         # compute the rest of the frames
         seq_idxs = start_idx + np.arange(
             self.num_seq * self.seq_len) * self.downsample
@@ -90,12 +92,11 @@ class RMIS(data.Dataset):
         if self.return_video:
 
             # sample frames
-            if self.return_last_frame:
-                # TODO: in case of last frame, sample from end of video
-                # do not sample randomly
-                raise NotImplementedError()
-            else:
-                sampled_frame_idxs = self.idx_sampler()
+            # if returning image and target, the sample is the last frames of
+            # the video
+            # otherwise sample is sampled
+            sampled_frame_idxs = self.idx_sampler(
+                sample_last=self.return_last_frame)
 
             # compressed frames
             compressed_video = zipfile.ZipFile(vpath / '10s_video.zip')

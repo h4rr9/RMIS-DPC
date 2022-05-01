@@ -145,13 +145,18 @@ class UNet11(nn.Module):
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
         self.sigmoid = nn.Sigmoid()
 
-    def forward(self, x):
+    def forward(self, x, features=None):
         conv1 = self.conv1(x)
         conv2 = self.conv2(self.pool(conv1))
         conv3 = self.conv3(self.pool(conv2))
         conv4 = self.conv4(self.pool(conv3))
         conv5 = self.conv5(self.pool(conv4))
         center = self.center(self.pool(conv5))
+
+        if features:
+            center = (center + features) / 2
+
+        print(center.shape, conv5.shape)
 
         dec5 = self.dec5(torch.cat([center, conv5], 1))
         dec4 = self.dec4(torch.cat([dec5, conv4], 1))

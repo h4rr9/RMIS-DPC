@@ -2,7 +2,7 @@
 
 import math
 
-from .backbone import select_resnet, ConvGRU
+from backbone import select_resnet, ConvGRU
 
 import torch
 import torch.nn as nn
@@ -61,7 +61,7 @@ class DPC(nn.Module):
                                self.last_size,
                                self.last_size)  # [B*N,D,last_size,last_size]
         context, _ = self.agg(feature)
-        context = context[:, -1, :].unsqueeze(1)
+        context = context[:, -1, :]
 
         return self.upsample(context) if self.upsample_size else context
 
@@ -76,8 +76,8 @@ class DPC(nn.Module):
 
 if __name__ == "__main__":
 
-    mymodel = DPC(sample_size=128)
-    x = torch.FloatTensor(4, 5, 3, 5, 128, 128)
+    mymodel = DPC(sample_size=128, upsample_size=33)
+    x = torch.FloatTensor(1, 5, 3, 5, 128, 128)
 
     if torch.cuda.is_available():
         mymodel = mymodel.cuda()
