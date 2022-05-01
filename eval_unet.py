@@ -20,10 +20,10 @@ from utils import utils
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='rmis', type=str)
 parser.add_argument('--data_path', default='/mnt/disks/rmis_test/', type=str)
-parser.add_argument('--resume',
+parser.add_argument('--load_weights',
                     default='',
                     type=str,
-                    help='path of model to resume')
+                    help='path of model to load')
 parser.add_argument('--seq_len',
                     default=0,
                     type=int,
@@ -53,21 +53,10 @@ def main():
     criterion = DICE_Loss()
 
     if args.dataset == 'rmis':
-        transform = T.Compose([
-            T.RandomSplit(),
-            T.RandomHorizontalFlip(),
-            T.RandomVerticalFlip(),
-            T.RandomGray(p=0.5),
-            T.ColorJitter(brightness=0.5,
-                          contrast=0.5,
-                          saturation=0.5,
-                          hue=0.25,
-                          p=1.0),
-            T.ToTensor(),
-        ])
+        transform = T.Compose([T.ToTensor()])
 
-    #load the saved weights
-    if os.path.isfile(args.resume):
+    # load the saved weights
+    if os.path.isfile(args.load_weights):
         args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
         print("=> loading resumed checkpoint '{}'".format(args.resume))
         checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
