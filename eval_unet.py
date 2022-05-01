@@ -38,6 +38,7 @@ parser.add_argument('--ds',
                     type=int,
                     help='frame downsampling rate')
 parser.add_argument('--batch_size', default=15, type=int)
+parser.add_argument('--num_classes', default=1, type=int)
 
 def main():
     
