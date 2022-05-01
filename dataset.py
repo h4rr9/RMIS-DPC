@@ -12,10 +12,9 @@ import io
 from dpc import ToTensor
 
 
-def pil_loader(path):
-    with open(path, 'rb') as f:
-        with Image.open(f) as img:
-            return img.convert('RGB')
+def zip_test(zip_file):
+    z = zipfile.ZipFile(zip_file)
+    return z.testzip() and z.infolist()
 
 
 class RMIS(data.Dataset):
@@ -57,9 +56,9 @@ class RMIS(data.Dataset):
 
         with open(self.data_file, 'r') as f:
             self.video_paths = np.array([
-                row for row in csv.reader(f) if zipfile.ZipFile(
-                    Path(row[0]) /
-                    '10s_video.zip').infolist()  # check if zipfile is empty
+                row for row in csv.reader(f)
+                if zip_test(Path(row[0]) /
+                            '10s_video.zip')  # check if zipfile is empty
                 # TODO: find better way to check if zip is empty
             ]).flatten()
 
@@ -205,7 +204,7 @@ def get_data(
 
 
 if __name__ == "__main__":
-    d = RMIS('/home/h4rr9/work/python/rmis/test',
+    d = RMIS(data_path='/mnt/disks/rmis_train/',
              video_transforms=ToTensor(),
              downsample=3,
              seq_len=3,

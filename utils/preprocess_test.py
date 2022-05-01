@@ -6,7 +6,9 @@ import numpy as np
 
 parser = argparse.ArgumentParser()
 
-parser.add_argument('--data_path', default='/mnt/disks/rmis_test/data', type=str)
+parser.add_argument('--data_path',
+                    default='/mnt/disks/rmis_test/data',
+                    type=str)
 
 parser.add_argument('--output_file_prefix', default='data_split_', type=str)
 parser.add_argument('--train_val_split', default=0.8, type=float)
@@ -29,13 +31,13 @@ if __name__ == "__main__":
             for p in patients:
                 video_folder = data_path / g / s / p
                 if os.path.isdir(video_folder):
-    
+
                     videos_s_p = [
                         f.path for f in os.scandir(video_folder) if f.is_dir()
                     ]
                     videos[(
-                        s,
-                        p)] = videos_s_p[:int(len(videos_s_p) * args.dataset_keep)]
+                        s, p
+                    )] = videos_s_p[:int(len(videos_s_p) * args.dataset_keep)]
                     total_videos += len(videos[(s, p)])
 
     print(f"Total videos found ::: {total_videos}")
@@ -43,7 +45,6 @@ if __name__ == "__main__":
     # print(
     #     f"Splitting train val {args.train_val_split} : {1 -args.train_val_split}"
     # )
-    
 
     # train_paths, val_paths = [], []
 
@@ -54,15 +55,14 @@ if __name__ == "__main__":
         test_paths.extend(sorted_paths)
 
     test_paths = np.array(test_paths).reshape(-1, 1)
-    
+
     print(f"test data size ::: {len(test_paths)}")
-    
+
     test_csv_file = 'test.csv'
 
     print("Writing to csv files test.csv")
 
-    with open(test_csv_file, 'w', encoding='UTF8',
-              newline='') as test_f:
+    with open(test_csv_file, 'w', encoding='UTF8', newline='') as test_f:
 
         test_writer = csv.writer(test_f)
         test_writer.writerows(test_paths)
