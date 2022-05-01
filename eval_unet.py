@@ -19,7 +19,7 @@ from utils import utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default='rmis', type=str)
-parser.add_argument('--data_path', default='/mnt/disks/rmis_train/', type=str)
+parser.add_argument('--data_path', default='/mnt/disks/rmis_test/', type=str)
 parser.add_argument('--resume',
                     default='',
                     type=str,
@@ -40,17 +40,18 @@ parser.add_argument('--ds',
 parser.add_argument('--batch_size', default=15, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
 
+
 def main():
-    
+
     global args
     args = parser.parse_args()
     cuda = torch.device('cuda')
-    
+
     model = UNet11(args.num_classes)
     model.to(cuda)
-    
+
     criterion = DICE_Loss()
-    
+
     if args.dataset == 'rmis':
         transform = T.Compose([
             T.RandomSplit(),
@@ -64,13 +65,12 @@ def main():
                           p=1.0),
             T.ToTensor(),
         ])
-        
+
     #load the saved weights
     if os.path.isfile(args.resume):
         args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
         print("=> loading resumed checkpoint '{}'".format(args.resume))
-        checkpoint = torch.load(args.resume,
-                                map_location=torch.device('cpu'))
+        checkpoint = torch.load(args.resume, map_location=torch.device('cpu'))
         # args.start_epoch = checkpoint['epoch']
         model.load_state_dict(checkpoint['state_dict'])
         # if not args.reset_lr:  # if didn't reset lr, load old optimizer
@@ -80,14 +80,13 @@ def main():
     else:
         print("[Warning] no weights found at '{}'".format(args.resume))
 
-    
     test_loader = get_data(return_video=False,
-                            video_transforms=None,
-                            return_last_frame=True,
-                            last_frame_transforms=transform,
-                            args=args,
-                            mode='test')
-    
+                           video_transforms=None,
+                           return_last_frame=True,
+                           last_frame_transforms=transform,
+                           args=args,
+                           mode='test')
+
     losses = AverageMeter()
     dices = AverageMeter()
     ious = AverageMeter()
@@ -121,8 +120,8 @@ def main():
                                                  loss=losses))
 
     # return losses.local_avg, dices.local_avg, ious.local_avg
-    
-    
+
 
 if __name__ == '__main__':
     main()
+
