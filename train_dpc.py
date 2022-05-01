@@ -149,7 +149,7 @@ def main():
                 args.pretrain))
             checkpoint = torch.load(args.pretrain,
                                     map_location=torch.device('cpu'))
-            model = neq_load_customized(model, checkpoint['state_dict'])
+            model = utils.neq_load_customized(model, checkpoint['state_dict'])
             print("=> loaded pretrained checkpoint '{}' (epoch {})".format(
                 args.pretrain, checkpoint['epoch']))
         else:
