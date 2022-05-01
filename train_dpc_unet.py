@@ -17,6 +17,7 @@ import torchvision.transforms as transforms
 import os
 import re
 import time
+import itertools
 import argparse
 import numpy as np
 
@@ -125,7 +126,7 @@ def main():
         print(name, param.requires_grad)
     print('=================================\n')
 
-    params = dpc_model.parameters() + unet_model.parameters()
+    params = itertools.chain(dpc_model.parameters(), unet_model.parameters())
     optimizer = optim.Adam(params, lr=args.lr, weight_decay=args.wd)
     args.old_lr = None
 
