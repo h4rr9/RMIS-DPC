@@ -103,6 +103,14 @@ parser.add_argument('--initial_unet_weights',
                     required=True,
                     help='path of unet model weights to initalize')
 
+parser.add_argument('--freeze_dpc',
+                    action='store_true',
+                    help='freeze dpc weights')
+
+parser.add_argument('--freeze_unet_enc',
+                    action='store_true',
+                    help='freeze unet encoder weights')
+
 
 def main():
     torch.manual_seed(0)
@@ -132,6 +140,14 @@ def main():
     unet_model = unet_model.to(cuda)
 
     criterion = DICE_Loss()
+
+    if args.freeze_dpc:
+        for p in dpc_model.parameters():
+            p.requires_grad = False
+
+    if args.freeze_unet_enc:
+        for p in unet_model.encoder.parameters():
+            p.requires_grad = False
 
     print('\n===========Check DPC Grad============')
     for name, param in dpc_model.named_parameters():

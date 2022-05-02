@@ -1,4 +1,5 @@
 import os
+import torch
 
 
 def neq_load_customized(model, pretrained_dict):
@@ -44,19 +45,20 @@ def set_path(args):
         os.makedirs(model_path)
     return img_path, model_path
 
-def create_full_mask(pred1, pred2):
-    '''Pred1 and Pred2 are 2 torch tensors (Bx540x540)
+
+def create_full_mask(mask_l, mask_r):
+    '''mask_l and mask_r are 2 torch tensors (Bx540x540)
     which will be combined to create the full mask (Bx540x960)'''
-    
-    #Tensor on the left
-    tenLeft = pred1[:,:,:420]
-    
-    #Tensor on the right
-    tenRight = pred2[:,:,120:]
 
-    #Tensor in the middle, take element-wise max of pred1, pred2
-    tenMid = torch.maximum(pred1[:,:,420:], pred2[:,:,:120])
+    # Tensor on the left
+    left = mask_l[:, :, :420]
 
-    full_mask = torch.cat((tenLeft,tenMid, tenRight),dim=2)
+    # Tensor on the right
+    right = mask_r[:, :, 120:]
 
-    return full_mask
+    # Tensor in the middle, take element-wise max of pred1, pred2
+    middle = torch.maximum(mask_l[:, :, 420:], mask_r[:, :, :120])
+
+    mask = torch.cat((left, middle, right), dim=-1)
+
+    return mask
