@@ -45,17 +45,6 @@ parser.add_argument('--batch_size', default=4, type=int)
 parser.add_argument('--img_dim', default=128, type=int)
 parser.add_argument('--feature_dim', default=33, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
-parser.add_argument('--initial_dpc_weights',
-                    default='',
-                    type=str,
-                    required=True,
-                    help='path of dpc model weights to initalize')
-
-parser.add_argument('--initial_unet_weights',
-                    default='',
-                    type=str,
-                    required=True,
-                    help='path of unet model weights to initalize')
 
 
 def main():
