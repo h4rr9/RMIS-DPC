@@ -167,3 +167,6 @@ dpc_logs
 unet_dpc_logs/
 
 *.zip
+
+*tmp/
+*.tar
