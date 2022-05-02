@@ -45,7 +45,7 @@ parser.add_argument('--batch_size', default=4, type=int)
 parser.add_argument('--img_dim', default=128, type=int)
 parser.add_argument('--feature_dim', default=33, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
-
+parser.add_argument('--net', default='resnet18', type=str)
 
 def main():
 
@@ -84,17 +84,17 @@ def main():
         ])
 
     # load the saved weights
-    if args.resume:
-        if os.path.isfile(args.resume):
-            args.old_lr = float(re.search('_lr(.+?)_', args.resume).group(1))
-            print("=> loading resumed checkpoint '{}'".format(args.resume))
-            checkpoint = torch.load(args.resume,
+    if args.load_weights:
+        if os.path.isfile(args.load_weights):
+            args.old_lr = float(re.search('_lr(.+?)_', args.load_weights).group(1))
+            print("=> loading resumed checkpoint '{}'".format(args.load_weights))
+            checkpoint = torch.load(args.load_weights,
                                     map_location=torch.device('cpu'))
             args.start_epoch = checkpoint['epoch']
             dpc_model.load_state_dict(checkpoint['dpc_state_dict'])
             unet_model.load_state_dict(checkpoint['unet_state_dict'])
             print("=> loaded resumed checkpoint '{}' (epoch {})".format(
-                args.resume, checkpoint['epoch']))
+                args.load_weights, checkpoint['epoch']))
         else:
             print("[Warning] no checkpoint found at '{}'".format(args.resume))
 
