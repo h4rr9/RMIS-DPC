@@ -47,6 +47,7 @@ parser.add_argument('--feature_dim', default=33, type=int)
 parser.add_argument('--num_classes', default=1, type=int)
 parser.add_argument('--net', default='resnet18', type=str)
 
+
 def main():
 
     global args
@@ -86,8 +87,10 @@ def main():
     # load the saved weights
     if args.load_weights:
         if os.path.isfile(args.load_weights):
-            args.old_lr = float(re.search('_lr(.+?)_', args.load_weights).group(1))
-            print("=> loading resumed checkpoint '{}'".format(args.load_weights))
+            args.old_lr = float(
+                re.search('_lr(.+?)_', args.load_weights).group(1))
+            print("=> loading resumed checkpoint '{}'".format(
+                args.load_weights))
             checkpoint = torch.load(args.load_weights,
                                     map_location=torch.device('cpu'))
             args.start_epoch = checkpoint['epoch']
