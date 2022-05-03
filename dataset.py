@@ -69,15 +69,12 @@ class RMIS(data.Dataset):
 
         print(f'Read {len(self.video_paths)} lines from {self.data_file}')
 
-    def idx_sampler(self, sample_last=False):
+    def idx_sampler(self):
 
         # sample starting index
-        if sample_last:
-            start_idx = self.vlen - self.num_seq * self.seq_len * self.downsample - 1
-        else:
 
-            start_idx = np.random.randint(self.vlen - self.num_seq *
-                                          self.seq_len * self.downsample)
+        start_idx = np.random.randint(self.vlen - self.num_seq * self.seq_len *
+                                      self.downsample)
         # compute the rest of the frames
         seq_idxs = start_idx + np.arange(
             self.num_seq * self.seq_len) * self.downsample
@@ -97,8 +94,7 @@ class RMIS(data.Dataset):
             # if returning image and target, the sample is the last frames of
             # the video
             # otherwise sample is sampled
-            sampled_frame_idxs = self.idx_sampler(
-                sample_last=self.return_last_frame)
+            sampled_frame_idxs = self.idx_sampler()
 
             # compressed frames
             compressed_video = zipfile.ZipFile(vpath / '10s_video.zip')
