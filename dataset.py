@@ -99,8 +99,8 @@ class RMIS(data.Dataset):
             # if returning image and target, the sample is the last frames of
             # the video
             # otherwise sample is sampled
-            sampled_frame_idxs =
-            self.idx_sampler(sample_last=self.sample_last_frames)
+            sampled_frame_idxs = self.idx_sampler(
+                sample_last=self.sample_last_frames)
 
             # compressed frames
             compressed_video = zipfile.ZipFile(vpath / '10s_video.zip')
