@@ -6,6 +6,7 @@ import torch.nn as nn
 
 class ConvGRUCell(nn.Module):
     ''' Initialize ConvGRUCell '''
+
     def __init__(self, input_size, hidden_size, kernel_size):
 
         super(ConvGRUCell, self).__init__()
@@ -60,6 +61,7 @@ class ConvGRUCell(nn.Module):
 
 class ConvGRU(nn.Module):
     ''' Initialize a multi-layer Conv GRU '''
+
     def __init__(self,
                  input_size,
                  hidden_size,
